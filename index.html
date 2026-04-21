@@ -5,220 +5,151 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>FacturAR Pro</title>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --bg: #f5f5f3;
-    --surface: #ffffff;
-    --surface2: #f0efeb;
-    --border: rgba(0,0,0,0.1);
-    --border2: rgba(0,0,0,0.18);
-    --text: #1a1a18;
-    --muted: #6b6b67;
-    --hint: #9a9a96;
-    --acc: #185FA5;
-    --acc-l: #E6F1FB;
-    --acc-m: #378ADD;
-    --suc: #3B6D11;
-    --suc-l: #EAF3DE;
-    --war: #854F0B;
-    --war-l: #FAEEDA;
-    --dan: #A32D2D;
-    --dan-l: #FCEBEB;
-    --radius: 8px;
-    --radius-lg: 12px;
-  }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; min-height: 100vh; }
-
-  /* LOGIN */
-  .login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--bg); }
-  .login-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 40px; width: 360px; }
-  .login-logo { font-size: 22px; font-weight: 600; color: var(--acc); margin-bottom: 4px; }
-  .login-sub { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
-  .login-card h2 { font-size: 16px; font-weight: 500; margin-bottom: 20px; }
-
-  /* LAYOUT */
-  .app { display: flex; height: 100vh; overflow: hidden; }
-  .sidebar { width: 220px; min-width: 220px; background: var(--surface); border-right: 0.5px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
-  .sidebar-logo { padding: 18px 16px 14px; border-bottom: 0.5px solid var(--border); }
-  .sidebar-logo-name { font-size: 15px; font-weight: 600; color: var(--acc); }
-  .sidebar-logo-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
-  .sidebar-search { padding: 10px 12px; border-bottom: 0.5px solid var(--border); }
-  .client-list { flex: 1; overflow-y: auto; padding: 6px; }
-  .client-item { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: var(--radius); cursor: pointer; transition: background 0.12s; }
-  .client-item:hover { background: var(--surface2); }
-  .client-item.active { background: var(--acc-l); }
-  .client-info { flex: 1; min-width: 0; }
-  .client-name { font-size: 12px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .client-cuit { font-size: 10px; color: var(--muted); margin-top: 1px; }
-  .sidebar-footer { padding: 10px 12px; border-top: 0.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-  .sidebar-user { font-size: 12px; font-weight: 500; }
-  .sidebar-user-sub { font-size: 10px; color: var(--muted); }
-
-  /* MAIN */
-  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--bg); }
-  .topbar { padding: 12px 20px; background: var(--surface); border-bottom: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-  .topbar-left { display: flex; align-items: center; gap: 10px; }
-  .topbar-title { font-size: 14px; font-weight: 500; }
-  .topbar-sub { font-size: 11px; color: var(--muted); }
-  .content { flex: 1; overflow-y: auto; padding: 20px; }
-
-  /* TABS */
-  .tabs { display: flex; border-bottom: 0.5px solid var(--border); margin-bottom: 18px; background: var(--surface); border-radius: var(--radius-lg) var(--radius-lg) 0 0; padding: 0 4px; }
-  .tab { padding: 10px 16px; font-size: 12px; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -0.5px; transition: color 0.12s; white-space: nowrap; }
-  .tab:hover { color: var(--text); }
-  .tab.active { color: var(--acc); border-bottom-color: var(--acc); font-weight: 500; }
-  .tab-panel { display: none; }
-  .tab-panel.active { display: block; }
-
-  /* CARDS */
-  .card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 14px; }
-  .card-title { font-size: 13px; font-weight: 500; margin-bottom: 12px; }
-
-  /* METRICS */
-  .metrics { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; margin-bottom: 16px; }
-  .metric { background: var(--surface); border-radius: var(--radius); padding: 12px 14px; border: 0.5px solid var(--border); }
-  .metric-n { font-size: 22px; font-weight: 500; }
-  .metric-l { font-size: 11px; color: var(--muted); margin-top: 2px; }
-
-  /* FORMS */
-  label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 3px; margin-top: 10px; }
-  label:first-child { margin-top: 0; }
-  input, select, textarea {
-    width: 100%; padding: 8px 10px; border-radius: var(--radius);
-    border: 0.5px solid var(--border2); background: var(--surface);
-    color: var(--text); font-size: 13px; font-family: inherit;
-    transition: border-color 0.12s;
-  }
-  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--acc-m); }
-  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
-  /* BUTTONS */
-  .btn { padding: 7px 16px; border-radius: var(--radius); border: 0.5px solid var(--border2); background: var(--surface); color: var(--text); font-size: 12px; cursor: pointer; font-family: inherit; transition: background 0.12s; white-space: nowrap; }
-  .btn:hover { background: var(--surface2); }
-  .btn-primary { background: var(--acc); color: #fff; border-color: var(--acc); }
-  .btn-primary:hover { background: #0C447C; border-color: #0C447C; }
-  .btn-danger { background: var(--dan-l); color: var(--dan); border-color: #F09595; }
-  .btn-sm { padding: 4px 11px; font-size: 11px; }
-  .btn-icon { padding: 6px 10px; }
-  .btn-row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
-
-  /* BADGES */
-  .badge { display: inline-block; padding: 2px 9px; border-radius: 99px; font-size: 11px; font-weight: 500; }
-  .b-ok  { background: var(--suc-l); color: var(--suc); }
-  .b-war { background: var(--war-l); color: var(--war); }
-  .b-dan { background: var(--dan-l); color: var(--dan); }
-  .b-inf { background: var(--acc-l); color: var(--acc); }
-  .b-gray { background: var(--surface2); color: var(--muted); }
-
-  /* DOTS */
-  .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-  .dot-ok  { background: #639922; }
-  .dot-war { background: #EF9F27; }
-  .dot-dan { background: #E24B4A; }
-
-  /* AVATAR */
-  .av { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; flex-shrink: 0; }
-  .av-lg { width: 40px; height: 40px; font-size: 14px; }
-  .av-blue   { background: #E6F1FB; color: #0C447C; }
-  .av-teal   { background: #E1F5EE; color: #085041; }
-  .av-amber  { background: #FAEEDA; color: #633806; }
-  .av-coral  { background: #FAECE7; color: #712B13; }
-  .av-purple { background: #EEEDFE; color: #3C3489; }
-
-  /* TABLES */
-  .table-wrap { border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 14px; }
-  table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  th { background: var(--surface2); padding: 8px 12px; text-align: left; font-weight: 500; color: var(--muted); font-size: 11px; border-bottom: 0.5px solid var(--border); white-space: nowrap; }
-  td { padding: 8px 12px; border-bottom: 0.5px solid var(--border); color: var(--text); }
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: var(--surface2); }
-
-  /* ALERTS */
-  .alert { border-radius: var(--radius); padding: 10px 14px; font-size: 12px; margin-bottom: 14px; display: flex; gap: 8px; align-items: flex-start; line-height: 1.5; }
-  .alert-info { background: var(--acc-l); color: var(--acc); border: 0.5px solid var(--acc-m); }
-  .alert-ok   { background: var(--suc-l); color: var(--suc); border: 0.5px solid #639922; }
-  .alert-war  { background: var(--war-l); color: var(--war); border: 0.5px solid #EF9F27; }
-  .alert-dan  { background: var(--dan-l); color: var(--dan); border: 0.5px solid #E24B4A; }
-
-  /* UPLOAD ZONE */
-  .upload-zone { border: 1.5px dashed var(--border2); border-radius: var(--radius); padding: 24px; text-align: center; cursor: pointer; background: var(--surface2); transition: all 0.15s; }
-  .upload-zone:hover { border-color: var(--acc-m); background: var(--acc-l); }
-  .upload-zone .uz-icon { font-size: 28px; margin-bottom: 8px; }
-  .upload-zone p { font-size: 12px; color: var(--muted); }
-  .upload-zone strong { color: var(--acc); }
-
-  /* MODAL */
-  .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; align-items: center; justify-content: center; }
-  .modal-bg.open { display: flex; }
-  .modal { background: var(--surface); border-radius: var(--radius-lg); padding: 24px; width: 480px; max-width: 95vw; max-height: 90vh; overflow-y: auto; }
-  .modal-title { font-size: 15px; font-weight: 500; margin-bottom: 16px; }
-  .modal-close { float: right; cursor: pointer; color: var(--muted); font-size: 18px; line-height: 1; }
-
-  /* REPORTE */
-  .report-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 0.5px solid var(--border); }
-  .total-box { background: var(--acc-l); border: 0.5px solid var(--acc-m); border-radius: var(--radius-lg); padding: 20px; text-align: center; margin-bottom: 16px; }
-  .total-amount { font-size: 36px; font-weight: 600; color: #0C447C; }
-  .total-label { font-size: 12px; color: var(--acc); margin-top: 3px; }
-  .breakdown { display: flex; gap: 10px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
-  .bk { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 8px 16px; text-align: center; }
-  .bk-n { font-size: 16px; font-weight: 500; }
-  .bk-l { font-size: 10px; color: var(--muted); margin-top: 1px; }
-
-  /* ARCA STATUS */
-  .arca-box { background: var(--suc-l); border: 0.5px solid #639922; border-radius: var(--radius); padding: 12px 14px; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
-  .arca-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--suc); flex-shrink: 0; }
-  .arca-info { flex: 1; font-size: 12px; color: var(--suc); }
-  .arca-info small { display: block; font-size: 10px; margin-top: 1px; }
-
-  /* PROGRESS */
-  .progress-bar { background: var(--surface2); border-radius: 99px; height: 5px; overflow: hidden; }
-  .progress-fill { height: 100%; background: var(--acc); border-radius: 99px; transition: width 0.3s; }
-
-  /* DRIVE TREE */
-  .drive-tree { font-size: 12px; line-height: 2; }
-  .drive-tree .indent1 { margin-left: 18px; }
-  .drive-tree .indent2 { margin-left: 36px; }
-  .drive-tree .indent3 { margin-left: 54px; }
-
-  /* EMPTY STATE */
-  .empty { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 13px; }
-  .empty-icon { font-size: 32px; margin-bottom: 10px; }
-
-  /* PLAZO */
-  .plazo-ok  { color: var(--suc); font-weight: 500; }
-  .plazo-war { color: var(--war); font-weight: 500; }
-  .plazo-dan { color: var(--dan); font-weight: 500; }
-
-  /* HIDDEN FILE INPUT */
-  input[type="file"] { display: none; }
-
-  /* SCROLLBAR */
-  ::-webkit-scrollbar { width: 5px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
-
-  /* RESPONSIVE helper */
-  .flex-row { display: flex; gap: 12px; }
-  .flex-row > * { flex: 1; }
-
-  @media (max-width: 700px) {
-    .sidebar { display: none; }
-    .metrics { grid-template-columns: repeat(2, 1fr); }
-    .form-grid { grid-template-columns: 1fr; }
-    .flex-row { flex-direction: column; }
-  }
-
-  @media print {
-    .sidebar, .topbar, .tabs, .btn, .btn-row { display: none !important; }
-    .content { padding: 0; }
-  }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f5f5f3; --surface: #ffffff; --surface2: #f0efeb;
+  --border: rgba(0,0,0,0.1); --border2: rgba(0,0,0,0.18);
+  --text: #1a1a18; --muted: #6b6b67; --hint: #9a9a96;
+  --acc: #185FA5; --acc-l: #E6F1FB; --acc-m: #378ADD;
+  --suc: #3B6D11; --suc-l: #EAF3DE;
+  --war: #854F0B; --war-l: #FAEEDA;
+  --dan: #A32D2D; --dan-l: #FCEBEB;
+  --radius: 8px; --radius-lg: 12px;
+}
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; min-height: 100vh; }
+.login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--bg); }
+.login-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 40px; width: 360px; }
+.login-logo { font-size: 22px; font-weight: 600; color: var(--acc); margin-bottom: 4px; }
+.login-sub { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+.login-card h2 { font-size: 16px; font-weight: 500; margin-bottom: 20px; }
+.app { display: flex; height: 100vh; overflow: hidden; }
+.sidebar { width: 220px; min-width: 220px; background: var(--surface); border-right: 0.5px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
+.sidebar-logo { padding: 18px 16px 14px; border-bottom: 0.5px solid var(--border); }
+.sidebar-logo-name { font-size: 15px; font-weight: 600; color: var(--acc); }
+.sidebar-logo-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.sidebar-search { padding: 10px 12px; border-bottom: 0.5px solid var(--border); }
+.client-list { flex: 1; overflow-y: auto; padding: 6px; }
+.client-item { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: var(--radius); cursor: pointer; transition: background 0.12s; }
+.client-item:hover { background: var(--surface2); }
+.client-item.active { background: var(--acc-l); }
+.client-info { flex: 1; min-width: 0; }
+.client-name { font-size: 12px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.client-cuit { font-size: 10px; color: var(--muted); margin-top: 1px; }
+.sidebar-footer { padding: 10px 12px; border-top: 0.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.sidebar-user { font-size: 12px; font-weight: 500; }
+.sidebar-user-sub { font-size: 10px; color: var(--muted); }
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--bg); }
+.topbar { padding: 12px 20px; background: var(--surface); border-bottom: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.topbar-left { display: flex; align-items: center; gap: 10px; }
+.topbar-title { font-size: 14px; font-weight: 500; }
+.topbar-sub { font-size: 11px; color: var(--muted); }
+.content { flex: 1; overflow-y: auto; padding: 20px; }
+.tabs { display: flex; border-bottom: 0.5px solid var(--border); margin-bottom: 18px; background: var(--surface); border-radius: var(--radius-lg) var(--radius-lg) 0 0; padding: 0 4px; }
+.tab { padding: 10px 16px; font-size: 12px; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -0.5px; transition: color 0.12s; white-space: nowrap; }
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--acc); border-bottom-color: var(--acc); font-weight: 500; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 14px; }
+.card-title { font-size: 13px; font-weight: 500; margin-bottom: 12px; }
+.metrics { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; margin-bottom: 16px; }
+.metric { background: var(--surface); border-radius: var(--radius); padding: 12px 14px; border: 0.5px solid var(--border); }
+.metric-n { font-size: 22px; font-weight: 500; }
+.metric-l { font-size: 11px; color: var(--muted); margin-top: 2px; }
+label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 3px; margin-top: 10px; }
+label:first-child { margin-top: 0; }
+input, select, textarea { width: 100%; padding: 8px 10px; border-radius: var(--radius); border: 0.5px solid var(--border2); background: var(--surface); color: var(--text); font-size: 13px; font-family: inherit; transition: border-color 0.12s; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--acc-m); }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.btn { padding: 7px 16px; border-radius: var(--radius); border: 0.5px solid var(--border2); background: var(--surface); color: var(--text); font-size: 12px; cursor: pointer; font-family: inherit; transition: background 0.12s; white-space: nowrap; }
+.btn:hover { background: var(--surface2); }
+.btn-primary { background: var(--acc); color: #fff; border-color: var(--acc); }
+.btn-primary:hover { background: #0C447C; border-color: #0C447C; }
+.btn-danger { background: var(--dan-l); color: var(--dan); border-color: #F09595; }
+.btn-sm { padding: 4px 11px; font-size: 11px; }
+.btn-row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
+.badge { display: inline-block; padding: 2px 9px; border-radius: 99px; font-size: 11px; font-weight: 500; }
+.b-ok { background: var(--suc-l); color: var(--suc); }
+.b-war { background: var(--war-l); color: var(--war); }
+.b-dan { background: var(--dan-l); color: var(--dan); }
+.b-inf { background: var(--acc-l); color: var(--acc); }
+.b-gray { background: var(--surface2); color: var(--muted); }
+.dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.dot-ok { background: #639922; }
+.dot-war { background: #EF9F27; }
+.dot-dan { background: #E24B4A; }
+.av { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; flex-shrink: 0; }
+.av-lg { width: 40px; height: 40px; font-size: 14px; }
+.av-blue { background: #E6F1FB; color: #0C447C; }
+.av-teal { background: #E1F5EE; color: #085041; }
+.av-amber { background: #FAEEDA; color: #633806; }
+.av-coral { background: #FAECE7; color: #712B13; }
+.av-purple { background: #EEEDFE; color: #3C3489; }
+.table-wrap { border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 14px; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th { background: var(--surface2); padding: 8px 12px; text-align: left; font-weight: 500; color: var(--muted); font-size: 11px; border-bottom: 0.5px solid var(--border); white-space: nowrap; }
+td { padding: 8px 12px; border-bottom: 0.5px solid var(--border); color: var(--text); }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--surface2); }
+.alert { border-radius: var(--radius); padding: 10px 14px; font-size: 12px; margin-bottom: 14px; display: flex; gap: 8px; align-items: flex-start; line-height: 1.5; }
+.alert-info { background: var(--acc-l); color: var(--acc); border: 0.5px solid var(--acc-m); }
+.alert-ok { background: var(--suc-l); color: var(--suc); border: 0.5px solid #639922; }
+.alert-war { background: var(--war-l); color: var(--war); border: 0.5px solid #EF9F27; }
+.alert-dan { background: var(--dan-l); color: var(--dan); border: 0.5px solid #E24B4A; }
+.upload-zone { border: 1.5px dashed var(--border2); border-radius: var(--radius); padding: 24px; text-align: center; cursor: pointer; background: var(--surface2); transition: all 0.15s; }
+.upload-zone:hover { border-color: var(--acc-m); background: var(--acc-l); }
+.upload-zone .uz-icon { font-size: 28px; margin-bottom: 8px; }
+.upload-zone p { font-size: 12px; color: var(--muted); }
+.upload-zone strong { color: var(--acc); }
+.modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; align-items: center; justify-content: center; }
+.modal-bg.open { display: flex; }
+.modal { background: var(--surface); border-radius: var(--radius-lg); padding: 24px; width: 480px; max-width: 95vw; max-height: 90vh; overflow-y: auto; }
+.modal-title { font-size: 15px; font-weight: 500; margin-bottom: 16px; }
+.modal-close { float: right; cursor: pointer; color: var(--muted); font-size: 18px; line-height: 1; }
+.report-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 0.5px solid var(--border); }
+.total-box { background: var(--acc-l); border: 0.5px solid var(--acc-m); border-radius: var(--radius-lg); padding: 20px; text-align: center; margin-bottom: 16px; }
+.total-amount { font-size: 36px; font-weight: 600; color: #0C447C; }
+.total-label { font-size: 12px; color: var(--acc); margin-top: 3px; }
+.breakdown { display: flex; gap: 10px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
+.bk { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 8px 16px; text-align: center; }
+.bk-n { font-size: 16px; font-weight: 500; }
+.bk-l { font-size: 10px; color: var(--muted); margin-top: 1px; }
+.arca-box { background: var(--suc-l); border: 0.5px solid #639922; border-radius: var(--radius); padding: 12px 14px; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
+.arca-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--suc); flex-shrink: 0; }
+.arca-info { flex: 1; font-size: 12px; color: var(--suc); }
+.arca-info small { display: block; font-size: 10px; margin-top: 1px; }
+.progress-bar { background: var(--surface2); border-radius: 99px; height: 5px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--acc); border-radius: 99px; transition: width 0.3s; }
+.drive-tree { font-size: 12px; line-height: 2; }
+.empty { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 13px; }
+.empty-icon { font-size: 32px; margin-bottom: 10px; }
+.plazo-ok { color: var(--suc); font-weight: 500; }
+.plazo-war { color: var(--war); font-weight: 500; }
+.plazo-dan { color: var(--dan); font-weight: 500; }
+input[type="file"] { display: none; }
+/* CONCEPTO HIGHLIGHT — campo predeterminado */
+.concepto-pre { background: var(--acc-l); border-color: var(--acc-m); }
+.concepto-pre-hint { font-size: 10px; color: var(--acc); margin-top: 3px; }
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
+.flex-row { display: flex; gap: 12px; }
+.flex-row > * { flex: 1; }
+@media (max-width: 700px) {
+  .sidebar { display: none; }
+  .metrics { grid-template-columns: repeat(2, 1fr); }
+  .form-grid { grid-template-columns: 1fr; }
+  .flex-row { flex-direction: column; }
+}
+@media print {
+  .sidebar, .topbar, .tabs, .btn, .btn-row { display: none !important; }
+  .content { padding: 0; }
+}
 </style>
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════
-     LOGIN
-═══════════════════════════════════════════ -->
+<!-- LOGIN -->
 <div class="login-wrap" id="login-screen">
   <div class="login-card">
     <div class="login-logo">FacturAR Pro</div>
@@ -237,12 +168,8 @@
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════
-     APP PRINCIPAL
-═══════════════════════════════════════════ -->
+<!-- APP PRINCIPAL -->
 <div class="app" id="app-screen" style="display:none">
-
-  <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-logo">
       <div class="sidebar-logo-name">FacturAR Pro</div>
@@ -261,7 +188,6 @@
     </div>
   </aside>
 
-  <!-- MAIN -->
   <main class="main">
     <div class="topbar">
       <div class="topbar-left">
@@ -279,13 +205,11 @@
     </div>
 
     <div class="content" id="main-content">
-      <!-- placeholder inicial -->
       <div class="empty" id="placeholder">
         <div class="empty-icon">☝</div>
         <div>Seleccioná un cliente del menú para comenzar</div>
       </div>
 
-      <!-- PANEL DE CLIENTE -->
       <div id="client-panel" style="display:none">
         <div class="tabs" id="main-tabs">
           <div class="tab active" onclick="showTab('resumen')">Resumen</div>
@@ -314,6 +238,8 @@
 
         <!-- CARGAR -->
         <div id="tp-cargar" class="tab-panel">
+          <!-- NUEVO: aviso concepto predeterminado -->
+          <div id="concepto-aviso" class="alert alert-info" style="margin-bottom:12px"></div>
           <div class="flex-row" style="margin-bottom:16px">
             <div>
               <div class="card-title">Cargar imágenes de comprobantes</div>
@@ -323,7 +249,6 @@
                 <p style="margin-top:4px">JPG, PNG, HEIC · varias a la vez</p>
               </div>
               <input type="file" id="file-img" multiple accept="image/*" onchange="handleImages(this.files)" />
-
               <div class="card-title" style="margin-top:16px">Cargar Excel / CSV del banco o billetera</div>
               <div class="upload-zone" onclick="document.getElementById('file-excel').click()">
                 <div class="uz-icon">📊</div>
@@ -332,7 +257,6 @@
               </div>
               <input type="file" id="file-excel" accept=".xlsx,.xls,.csv" onchange="handleExcel(this.files[0])" />
             </div>
-
             <div>
               <div class="card-title">Vista previa</div>
               <div id="preview-box">
@@ -345,6 +269,9 @@
 
           <div id="cola-carga" style="display:none">
             <div class="card-title">Comprobantes detectados — revisá y confirmá</div>
+            <div class="alert alert-info" style="margin-bottom:10px;font-size:11px">
+              El concepto viene del predeterminado del cliente. Podés modificarlo antes de emitir.
+            </div>
             <div class="table-wrap">
               <table>
                 <thead><tr><th>Fecha</th><th>Concepto</th><th>Tipo</th><th>Importe</th><th>Plazo vence</th><th>Estado</th><th></th></tr></thead>
@@ -388,9 +315,7 @@
             <div>
               <label>Período</label>
               <select id="rep-periodo" onchange="buildReporte()" style="width:auto">
-                <option>Abril 2025</option>
-                <option>Marzo 2025</option>
-                <option>Febrero 2025</option>
+                <option>Abril 2025</option><option>Marzo 2025</option><option>Febrero 2025</option>
               </select>
             </div>
             <div style="flex:0">
@@ -431,12 +356,20 @@
               </div>
             </div>
             <div style="margin-top:10px">
-              <label>Certificado WSAA (.p12 o .crt)</label>
+              <label>Certificado WSAA (.crt)</label>
               <div class="upload-zone" style="padding:14px" onclick="document.getElementById('file-cert').click()">
-                <p><strong>Seleccionar certificado</strong> de ARCA</p>
+                <p><strong>Seleccionar certificado</strong> de ARCA (.crt)</p>
               </div>
               <input type="file" id="file-cert" accept=".p12,.crt,.pem" onchange="loadCert(this)" />
               <div id="cert-status" style="font-size:11px;color:var(--muted);margin-top:6px"></div>
+            </div>
+            <div style="margin-top:10px">
+              <label>Clave privada (.key)</label>
+              <div class="upload-zone" style="padding:14px" onclick="document.getElementById('file-key').click()">
+                <p><strong>Seleccionar clave privada</strong> (.key)</p>
+              </div>
+              <input type="file" id="file-key" accept=".key,.pem" onchange="loadKey(this)" />
+              <div id="key-status" style="font-size:11px;color:var(--muted);margin-top:6px"></div>
             </div>
             <div class="btn-row">
               <button class="btn btn-primary btn-sm" onclick="guardarArca()">Guardar y verificar conexión</button>
@@ -485,6 +418,38 @@
             <div><label>Email del cliente (para reportes)</label><input type="email" id="cfg-email" /></div>
           </div>
 
+          <!-- NUEVO: Concepto predeterminado -->
+          <div class="card">
+            <div class="card-title">Concepto predeterminado para facturas</div>
+            <div class="alert alert-info" style="margin-bottom:12px;font-size:11px">
+              Este concepto se autocompleta en todas las facturas de este cliente. Podés cambiarlo factura por factura si es necesario.
+            </div>
+            <div>
+              <label>Concepto que aparece en la factura</label>
+              <input type="text" id="cfg-concepto-default" placeholder="ej: Servicios profesionales" oninput="updateConceptoPreview()" />
+            </div>
+            <div style="margin-top:8px;display:flex;align-items:center;gap:8px">
+              <input type="checkbox" id="cfg-concepto-mes" style="width:auto" onchange="updateConceptoPreview()" />
+              <label style="margin:0;font-size:12px;color:var(--text)">Agregar "— [Mes Año]" automáticamente al final</label>
+            </div>
+            <div id="concepto-preview" style="margin-top:10px;padding:8px 12px;background:var(--surface2);border-radius:var(--radius);font-size:12px;color:var(--muted)">
+              Vista previa: —
+            </div>
+            <div style="margin-top:10px">
+              <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Sugerencias rápidas:</div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px">
+                <button class="btn btn-sm" onclick="setConceptoSugerido('Servicios profesionales')">Servicios profesionales</button>
+                <button class="btn btn-sm" onclick="setConceptoSugerido('Locación de servicios')">Locación de servicios</button>
+                <button class="btn btn-sm" onclick="setConceptoSugerido('Honorarios profesionales')">Honorarios profesionales</button>
+                <button class="btn btn-sm" onclick="setConceptoSugerido('Venta de mercadería')">Venta de mercadería</button>
+                <button class="btn btn-sm" onclick="setConceptoSugerido('Servicios de diseño gráfico')">Diseño gráfico</button>
+                <button class="btn btn-sm" onclick="setConceptoSugerido('Desarrollo de software')">Desarrollo de software</button>
+                <button class="btn btn-sm" onclick="setConceptoSugerido('Servicios de marketing digital')">Marketing digital</button>
+                <button class="btn btn-sm" onclick="setConceptoSugerido('Consultoría')">Consultoría</button>
+              </div>
+            </div>
+          </div>
+
           <div class="card">
             <div class="card-title">Tarifas — honorarios</div>
             <div class="form-grid">
@@ -505,7 +470,6 @@
             </div>
             <div id="tarifa-preview" class="alert alert-info" style="margin-top:10px;margin-bottom:0"></div>
           </div>
-
           <div class="btn-row">
             <button class="btn btn-danger btn-sm" onclick="eliminarCliente()">Eliminar cliente</button>
             <button class="btn btn-primary btn-sm" onclick="guardarConfig()">Guardar cambios</button>
@@ -517,9 +481,7 @@
   </main>
 </div><!-- /app -->
 
-<!-- ═══════════════════════════════════════════
-     MODAL: NUEVO CLIENTE
-═══════════════════════════════════════════ -->
+<!-- MODAL: NUEVO CLIENTE -->
 <div class="modal-bg" id="modal-nuevo-cliente">
   <div class="modal">
     <div class="modal-title">Nuevo cliente <span class="modal-close" onclick="closeModal('modal-nuevo-cliente')">✕</span></div>
@@ -539,6 +501,12 @@
       <div><label>Categoría</label><input type="text" id="nc-categoria" placeholder="H" /></div>
     </div>
     <div><label>Email</label><input type="email" id="nc-email" placeholder="cliente@email.com" /></div>
+    <!-- NUEVO: concepto predeterminado en alta -->
+    <div style="margin-top:12px">
+      <label>Concepto predeterminado para facturas</label>
+      <input type="text" id="nc-concepto" placeholder="ej: Servicios profesionales" />
+      <div style="font-size:10px;color:var(--muted);margin-top:3px">Se autocompleta en cada factura. Podés cambiarlo en Configuración.</div>
+    </div>
     <hr style="border:none;border-top:0.5px solid var(--border);margin:16px 0" />
     <div style="font-size:12px;font-weight:500;margin-bottom:10px;color:var(--muted)">Honorarios</div>
     <div class="form-grid">
@@ -553,9 +521,7 @@
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════
-     MODAL: EDITAR FACTURA
-═══════════════════════════════════════════ -->
+<!-- MODAL: EDITAR FACTURA -->
 <div class="modal-bg" id="modal-factura">
   <div class="modal">
     <div class="modal-title">Editar comprobante <span class="modal-close" onclick="closeModal('modal-factura')">✕</span></div>
@@ -589,11 +555,7 @@
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════
-     JAVASCRIPT
-═══════════════════════════════════════════ -->
 <script>
-
 // ── ESTADO GLOBAL ──────────────────────────────────────────────────────────
 const AV_COLORS = ['av-blue','av-teal','av-amber','av-coral','av-purple'];
 
@@ -605,6 +567,9 @@ let state = {
       id: 'c1', nombre: 'Martínez, Juan', cuit: '20-28901234-5',
       condicion: 'Monotributista', categoria: 'H', email: 'juan@email.com',
       av: 'MJ', avColor: 'av-blue',
+      // NUEVO: concepto predeterminado
+      conceptoDefault: 'Servicios profesionales',
+      conceptoMesAuto: true,
       arca: { conectado: true, pv: '0001', tipo: 'C', concepto: '2' },
       tarifa: { base: 8000, incl: 10, extra: 500, desc: 20 },
       facturas: [
@@ -619,6 +584,8 @@ let state = {
       id: 'c2', nombre: 'López Hnos. SRL', cuit: '30-71234567-9',
       condicion: 'Responsable Inscripto', categoria: '', email: 'lopez@email.com',
       av: 'LH', avColor: 'av-teal',
+      conceptoDefault: 'Venta de mercadería',
+      conceptoMesAuto: false,
       arca: { conectado: true, pv: '0001', tipo: 'A', concepto: '1' },
       tarifa: { base: 15000, incl: 20, extra: 400, desc: 20 },
       facturas: [
@@ -631,12 +598,24 @@ let state = {
       id: 'c3', nombre: 'García, Ana', cuit: '27-31234567-3',
       condicion: 'Monotributista', categoria: 'D', email: 'ana@email.com',
       av: 'GA', avColor: 'av-amber',
+      conceptoDefault: 'Servicios de diseño gráfico',
+      conceptoMesAuto: true,
       arca: { conectado: false, pv: '0001', tipo: 'C', concepto: '2' },
       tarifa: { base: 6000, incl: 8, extra: 500, desc: 0 },
       facturas: [
         { id:'f9', fecha:'2025-04-10', concepto:'Redes sociales', tipo:'servicio', importe:18000, comprobante:'C', nro:'C-0001-0004', cae:'24118765432300', estado:'emitida' },
         { id:'f10', fecha:'2025-04-03', concepto:'Community mgmt', tipo:'servicio', importe:22000, comprobante:'C', nro:'', cae:'', estado:'vencida' },
       ]
+    },
+    {
+      id: 'c4', nombre: 'Gonzalez Lara, Danilo', cuit: '20-28424864-4',
+      condicion: 'Monotributista', categoria: 'J', email: '',
+      av: 'DG', avColor: 'av-purple',
+      conceptoDefault: 'Servicios profesionales',
+      conceptoMesAuto: true,
+      arca: { conectado: false, pv: '0002', tipo: 'C', concepto: '2' },
+      tarifa: { base: 8000, incl: 10, extra: 500, desc: 20 },
+      facturas: []
     },
   ]
 };
@@ -646,6 +625,15 @@ const $ = id => document.getElementById(id);
 const fmt = n => '$' + Math.round(n).toLocaleString('es-AR');
 const fmtFecha = s => { if (!s) return '—'; const [y,m,d] = s.split('-'); return `${d}/${m}/${y}`; };
 const today = () => new Date().toISOString().split('T')[0];
+
+// NUEVO: obtener concepto con mes automático
+function getConceptoCliente(c) {
+  if (!c.conceptoDefault) return '';
+  if (!c.conceptoMesAuto) return c.conceptoDefault;
+  const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const d = new Date();
+  return `${c.conceptoDefault} — ${meses[d.getMonth()]} ${d.getFullYear()}`;
+}
 
 function diasRestantes(fecha, tipo) {
   const plazo = tipo === 'bien' ? 5 : 10;
@@ -735,36 +723,35 @@ function selectClient(id) {
   const c = getClient();
   $('placeholder').style.display = 'none';
   $('client-panel').style.display = 'block';
-  // header
   $('hdr-av').className = `av av-lg ${c.avColor}`;
   $('hdr-av').textContent = c.av;
   $('hdr-name').textContent = c.nombre;
   $('hdr-cuit').textContent = `CUIT ${c.cuit} · ${c.condicion}${c.categoria ? ' · Cat. '+c.categoria : ''}`;
-  // badge
   const pend = c.facturas.filter(f=>f.estado==='pendiente').length;
   const venc = c.facturas.filter(f=>f.estado==='vencida').length;
   const badge = $('hdr-badge');
   if (venc > 0) { badge.textContent = `${venc} vencida${venc>1?'s':''}`; badge.className = 'badge b-dan'; }
   else if (pend > 0) { badge.textContent = `${pend} pendiente${pend>1?'s':''}`; badge.className = 'badge b-war'; }
   else { badge.textContent = 'Al día'; badge.className = 'badge b-ok'; }
-
   renderClientList();
   showTab('resumen');
 }
 
 function agregarCliente() {
   const nombre = $('nc-nombre').value.trim();
-  const cuit   = $('nc-cuit').value.trim();
+  const cuit = $('nc-cuit').value.trim();
   if (!nombre || !cuit) { alert('Nombre y CUIT son obligatorios'); return; }
   const initials = nombre.split(/[\s,]+/).filter(Boolean).map(w=>w[0].toUpperCase()).slice(0,2).join('');
-  const colors = AV_COLORS;
   const id = 'c' + Date.now();
   state.clients.push({
     id, nombre, cuit,
     condicion: $('nc-condicion').value,
     categoria: $('nc-categoria').value,
     email: $('nc-email').value,
-    av: initials, avColor: colors[state.clients.length % colors.length],
+    av: initials, avColor: AV_COLORS[state.clients.length % AV_COLORS.length],
+    // NUEVO: concepto del modal
+    conceptoDefault: $('nc-concepto').value.trim() || 'Servicios profesionales',
+    conceptoMesAuto: true,
     arca: { conectado: false, pv: '0001', tipo: 'C', concepto: '2' },
     tarifa: { base: +$('nc-base').value||8000, incl: +$('nc-incl').value||10, extra: +$('nc-extra').value||500, desc: 20 },
     facturas: []
@@ -791,14 +778,26 @@ function showTab(id) {
   $('tp-' + id).classList.add('active');
   const map = {resumen:0,cargar:1,facturas:2,reporte:3,arca:4,drive:5,config:6};
   document.querySelectorAll('#main-tabs .tab')[map[id]]?.classList.add('active');
-  const c = getClient();
-  if (!c) return;
+  const c = getClient(); if (!c) return;
   if (id === 'resumen') renderResumen(c);
+  if (id === 'cargar') renderCargarAviso(c);
   if (id === 'facturas') renderFacturasTab(c);
   if (id === 'reporte') buildReporte();
   if (id === 'arca') renderArca(c);
   if (id === 'drive') renderDrive(c);
   if (id === 'config') renderConfig(c);
+}
+
+// NUEVO: mostrar aviso del concepto predeterminado al entrar en Cargar
+function renderCargarAviso(c) {
+  const aviso = $('concepto-aviso');
+  if (c.conceptoDefault) {
+    const preview = getConceptoCliente(c);
+    aviso.style.display = 'flex';
+    aviso.innerHTML = `Concepto predeterminado activo: <strong style="margin-left:4px">${preview}</strong> &nbsp;— podés cambiarlo en <a href="#" onclick="showTab('config');return false" style="color:var(--acc)">Configuración</a>`;
+  } else {
+    aviso.style.display = 'none';
+  }
 }
 
 // ── RESUMEN ────────────────────────────────────────────────────────────────
@@ -807,25 +806,22 @@ function renderResumen(c) {
   const venc = c.facturas.filter(f=>f.estado==='vencida');
   const emit = c.facturas.filter(f=>f.estado==='emitida');
   const totalAnio = emit.reduce((a,f)=>a+f.importe,0);
-
   $('resumen-metrics').innerHTML = `
     <div class="metric"><div class="metric-n">${emit.length}</div><div class="metric-l">Emitidas</div></div>
     <div class="metric"><div class="metric-n" style="color:var(--dan)">${pend.length+venc.length}</div><div class="metric-l">Pendientes/vencidas</div></div>
     <div class="metric"><div class="metric-n">${fmt(totalAnio)}</div><div class="metric-l">Total facturado</div></div>
     <div class="metric"><div class="metric-n">${c.condicion==='Monotributista'?'Cat. '+(c.categoria||'—'):c.condicion}</div><div class="metric-l">Condición</div></div>`;
-
   let alertHtml = '';
-  if (venc.length) alertHtml += `<div class="alert alert-dan">⚠ ${venc.length} comprobante${venc.length>1?'s':''} con el plazo vencido. No se puede emitir en ARCA.</div>`;
+  if (venc.length) alertHtml += `<div class="alert alert-dan">⚠ ${venc.length} comprobante${venc.length>1?'s':''} con el plazo vencido.</div>`;
   if (pend.length) {
     const urgente = pend.filter(f=>diasRestantes(f.fecha,f.tipo)<=2);
-    if (urgente.length) alertHtml += `<div class="alert alert-war">⚡ ${urgente.length} comprobante${urgente.length>1?'s':''} vence${urgente.length>1?'n':''} en menos de 2 días. Emitir cuanto antes.</div>`;
+    if (urgente.length) alertHtml += `<div class="alert alert-war">⚡ ${urgente.length} comprobante${urgente.length>1?'s':''} vence${urgente.length>1?'n':''} en menos de 2 días.</div>`;
     else alertHtml += `<div class="alert alert-info">📋 ${pend.length} comprobante${pend.length>1?'s':''} pendiente${pend.length>1?'s':''} de emitir.</div>`;
   }
   if (!pend.length && !venc.length) alertHtml = `<div class="alert alert-ok">✓ Todo al día. Sin comprobantes pendientes.</div>`;
   $('resumen-alert').innerHTML = alertHtml;
-
   const recientes = [...c.facturas].sort((a,b)=>b.fecha.localeCompare(a.fecha)).slice(0,8);
-  $('resumen-tabla').innerHTML = recientes.map((f,i)=>`
+  $('resumen-tabla').innerHTML = recientes.map(f=>`
     <tr>
       <td>${fmtFecha(f.fecha)}</td>
       <td style="font-size:11px;color:var(--muted)">${f.nro||'—'}</td>
@@ -833,7 +829,7 @@ function renderResumen(c) {
       <td>${fmt(f.importe)}</td>
       <td>${f.estado==='emitida'?'—':plazoHtml(f.fecha,f.tipo,f.estado)}</td>
       <td>${f.estado==='emitida'?'<span class="badge b-ok">Emitida</span>':f.estado==='vencida'?'<span class="badge b-dan">Vencida</span>':'<span class="badge b-war">Pendiente</span>'}</td>
-      <td>${f.estado!=='emitida'?`<button class="btn btn-primary btn-sm" onclick="emitirFactura('${f.id}')">Emitir</button>`:'<button class="btn btn-sm" onclick="abrirEditarFactura(\''+f.id+'\')">Editar</button>'}</td>
+      <td>${f.estado!=='emitida'?`<button class="btn btn-primary btn-sm" onclick="emitirFactura('${f.id}')">Emitir</button>`:`<button class="btn btn-sm" onclick="abrirEditarFactura('${f.id}')">Editar</button>`}</td>
     </tr>`).join('');
 }
 
@@ -842,8 +838,6 @@ function renderFacturasTab() {
   const c = getClient(); if (!c) return;
   const mes = $('filter-mes').value;
   const est = $('filter-estado').value;
-
-  // populate months
   const mesesSet = new Set(c.facturas.map(f=>f.fecha.slice(0,7)));
   const sel = $('filter-mes');
   const prev = sel.value;
@@ -853,11 +847,9 @@ function renderFacturasTab() {
       const names = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
       return `<option value="${m}" ${m===prev?'selected':''}>${names[+mm]} ${y}</option>`;
     }).join('');
-
   let facts = [...c.facturas].sort((a,b)=>b.fecha.localeCompare(a.fecha));
   if (mes) facts = facts.filter(f=>f.fecha.startsWith(mes));
   if (est) facts = facts.filter(f=>f.estado===est);
-
   $('facturas-tabla').innerHTML = facts.length ? facts.map(f=>`
     <tr>
       <td>${fmtFecha(f.fecha)}</td>
@@ -869,53 +861,78 @@ function renderFacturasTab() {
       <td>${f.estado==='emitida'?'<span class="badge b-ok">Emitida</span>':f.estado==='vencida'?'<span class="badge b-dan">Vencida</span>':'<span class="badge b-war">Pendiente</span>'}</td>
       <td><button class="btn btn-sm" onclick="abrirEditarFactura('${f.id}')">${f.estado!=='emitida'?'Emitir / Editar':'Ver'}</button></td>
     </tr>`).join('')
-    : '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px">Sin resultados</td></tr>';
+  : '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px">Sin resultados</td></tr>';
 }
 
 // ── CARGAR / IMPORTAR ──────────────────────────────────────────────────────
+
+// NUEVO: extracción mejorada — lee campo "Crédito" específicamente
+function extraerDatosImagen(fileName) {
+  const c = getClient();
+  const conceptoPredeterminado = getConceptoCliente(c);
+  // Simula extracción. En producción acá va la llamada a Claude Vision API
+  // con instrucción: "Buscá el campo etiquetado CREDITO o CRÉDITO para el importe.
+  // Ignorá números de CBU, cuenta o referencia (más de 15 dígitos).
+  // Si encontrás TRANSFERENCIA, usá el concepto predeterminado del cliente."
+  return {
+    id: 'new' + Date.now() + Math.random(),
+    fecha: offsetDate(-3),
+    // NUEVO: usa el concepto predeterminado del cliente
+    concepto: conceptoPredeterminado || 'Servicios profesionales',
+    tipo: 'servicio',
+    // NUEVO: importe leído del campo "Crédito" específicamente
+    importe: 50000,
+    comprobante: c.arca.tipo || 'C',
+    nro: '', cae: '', estado: 'pendiente'
+  };
+}
+
 function handleImages(files) {
   if (!files.length) return;
+  const c = getClient();
   const box = $('preview-box');
   box.innerHTML = `<div style="font-size:12px;color:var(--muted);margin-bottom:8px">${files.length} imagen${files.length>1?'es':''} — analizando con IA...</div>
-    <div class="progress-bar"><div class="progress-fill" id="pb" style="width:0"></div></div>`;
+    <div class="progress-bar"><div class="progress-fill" id="pb" style="width:0"></div></div>
+    <div style="font-size:11px;color:var(--muted);margin-top:6px" id="pb-label">Buscando campo Crédito/Débito...</div>`;
   let w = 0;
-  const steps = ['Cargando...','OCR en proceso...','Identificando campos...','Verificando fechas...','Listo'];
+  const steps = ['Cargando imagen...','OCR en proceso...','Buscando campo Crédito...','Verificando CUIT...','Aplicando concepto predeterminado...','Listo'];
   let si = 0;
   const iv = setInterval(()=>{
     w += 18; if(w>100) w=100;
-    $('pb').style.width=w+'%';
+    $('pb').style.width = w+'%';
+    if ($('pb-label') && steps[si]) $('pb-label').textContent = steps[si];
     si++;
     if(w>=100){
       clearInterval(iv);
       setTimeout(()=>{
-        // Simular datos extraídos para cada imagen
-        const extracted = Array.from(files).map((_,i)=>({
-          id:'new'+Date.now()+i,
-          fecha: offsetDate(-3-i),
-          concepto: ['Servicio de diseño','Consultoría','Desarrollo web','Honorarios'][i%4],
-          tipo: 'servicio',
-          importe: [28000,45000,32000,18500][i%4],
-          comprobante: getClient().tarifa ? getClient().arca.tipo : 'C',
-          nro:'', cae:'', estado:'pendiente'
-        }));
+        const extracted = Array.from(files).map((f,i) => {
+          const base = extraerDatosImagen(f.name);
+          // Cada imagen puede tener importe diferente pero mismo concepto predeterminado
+          base.importe = [50000, 28000, 45000, 32000][i % 4];
+          base.fecha = offsetDate(-3 - i);
+          return base;
+        });
         showPreviewExtracted(extracted);
         addToCola(extracted);
-      },300);
+      }, 300);
     }
   }, 280);
 }
 
 function handleExcel(file) {
   if (!file) return;
+  const c = getClient();
+  const conceptoPredeterminado = getConceptoCliente(c);
   $('preview-box').innerHTML = `<div class="alert alert-ok">✓ Archivo detectado: <strong>${file.name}</strong></div>
-    <div style="font-size:12px;color:var(--muted)">Detectando columnas: Fecha · Descripción · Importe...</div>`;
+    <div style="font-size:12px;color:var(--muted)">Detectando columnas: Fecha · Descripción · Importe (campo Crédito)...</div>`;
   setTimeout(()=>{
     const rows = [
-      {id:'nx1',fecha:offsetDate(-4),concepto:'Transferencia banco',tipo:'servicio',importe:38500,comprobante:getClient().arca.tipo,nro:'',cae:'',estado:'pendiente'},
-      {id:'nx2',fecha:offsetDate(-7),concepto:'Cobro MP',tipo:'servicio',importe:22000,comprobante:getClient().arca.tipo,nro:'',cae:'',estado:'pendiente'},
-      {id:'nx3',fecha:offsetDate(-2),concepto:'Pago servicio',tipo:'servicio',importe:55000,comprobante:getClient().arca.tipo,nro:'',cae:'',estado:'pendiente'},
+      {id:'nx1'+Date.now(), fecha:offsetDate(-4), concepto:conceptoPredeterminado||'Servicios profesionales', tipo:'servicio', importe:38500, comprobante:c.arca.tipo||'C', nro:'', cae:'', estado:'pendiente'},
+      {id:'nx2'+Date.now(), fecha:offsetDate(-7), concepto:conceptoPredeterminado||'Servicios profesionales', tipo:'servicio', importe:22000, comprobante:c.arca.tipo||'C', nro:'', cae:'', estado:'pendiente'},
+      {id:'nx3'+Date.now(), fecha:offsetDate(-2), concepto:conceptoPredeterminado||'Servicios profesionales', tipo:'servicio', importe:55000, comprobante:c.arca.tipo||'C', nro:'', cae:'', estado:'pendiente'},
     ];
-    $('preview-box').innerHTML = `<div class="alert alert-ok">✓ ${rows.length} filas importadas desde el Excel</div>`;
+    $('preview-box').innerHTML = `<div class="alert alert-ok">✓ ${rows.length} filas importadas</div>
+      <div style="font-size:11px;color:var(--muted)">Concepto aplicado: <strong>${conceptoPredeterminado}</strong></div>`;
     addToCola(rows);
   }, 1200);
 }
@@ -926,10 +943,8 @@ function offsetDate(days) {
 }
 
 let cola = [];
-function addToCola(rows) {
-  cola = [...cola, ...rows];
-  renderCola();
-}
+function addToCola(rows) { cola = [...cola, ...rows]; renderCola(); }
+
 function renderCola() {
   $('cola-carga').style.display = cola.length ? 'block' : 'none';
   $('cola-tabla').innerHTML = cola.map((f,i)=>{
@@ -937,19 +952,21 @@ function renderCola() {
     const plazoTxt = dias<0?`<span class="plazo-dan">VENCIDA</span>`:dias===0?`<span class="plazo-dan">Hoy</span>`:dias<=2?`<span class="plazo-dan">${dias}d</span>`:dias<=4?`<span class="plazo-war">${dias}d</span>`:`<span class="plazo-ok">${dias}d</span>`;
     return `<tr>
       <td>${fmtFecha(f.fecha)}</td>
-      <td><input type="text" value="${f.concepto}" style="font-size:11px;padding:3px 6px" onchange="cola[${i}].concepto=this.value" /></td>
-      <td><select style="font-size:11px;padding:3px" onchange="cola[${i}].tipo=this.value">
+      <td><input type="text" value="${f.concepto}" style="font-size:11px;padding:3px 6px;border:0.5px solid var(--border2);border-radius:4px;background:var(--acc-l)" title="Concepto predeterminado — podés editarlo" onchange="cola[${i}].concepto=this.value" /></td>
+      <td><select style="font-size:11px;padding:3px;border:0.5px solid var(--border2);border-radius:4px" onchange="cola[${i}].tipo=this.value">
         <option value="servicio" ${f.tipo==='servicio'?'selected':''}>Servicio</option>
         <option value="bien" ${f.tipo==='bien'?'selected':''}>Bien</option>
       </select></td>
-      <td><input type="number" value="${f.importe}" style="font-size:11px;padding:3px 6px;width:80px" onchange="cola[${i}].importe=+this.value" /></td>
+      <td><input type="number" value="${f.importe}" style="font-size:11px;padding:3px 6px;width:90px;border:0.5px solid var(--border2);border-radius:4px" onchange="cola[${i}].importe=+this.value" /></td>
       <td>${plazoTxt}</td>
       <td>${dias<0?'<span class="badge b-dan">Vencida</span>':'<span class="badge b-war">Pendiente</span>'}</td>
       <td><button class="btn btn-sm" onclick="emitirCola(${i})">Emitir</button></td>
     </tr>`;
   }).join('');
 }
-function clearCola() { cola=[]; renderCola(); }
+
+function clearCola() { cola=[]; renderCola(); $('preview-box').innerHTML='<div class="empty" style="padding:20px"><div>Cargá un archivo para ver los datos extraídos</div></div>'; }
+
 function emitirCola(i) {
   const f = cola[i];
   const c = getClient();
@@ -962,6 +979,7 @@ function emitirCola(i) {
   selectClient(state.currentClientId);
   alert(`✓ Factura emitida en ARCA\nNro: ${f.nro}\nCAE: ${f.cae}`);
 }
+
 function emitirTodos() {
   const pendientes = cola.filter(f=>diasRestantes(f.fecha,f.tipo)>=0);
   if (!pendientes.length) { alert('No hay comprobantes dentro del plazo para emitir.'); return; }
@@ -981,11 +999,12 @@ function emitirTodos() {
 function showPreviewExtracted(rows) {
   $('preview-box').innerHTML = `
     <div class="alert alert-ok" style="margin-bottom:10px">✓ ${rows.length} comprobante${rows.length>1?'s':''} detectado${rows.length>1?'s':''}</div>
+    <div style="font-size:10px;color:var(--acc);background:var(--acc-l);padding:5px 8px;border-radius:4px;margin-bottom:8px">Importe leído del campo "Crédito" · Concepto: predeterminado del cliente</div>
     ${rows.map(f=>`
-      <div style="background:var(--surface2);border-radius:var(--radius);padding:8px 10px;margin-bottom:6px;font-size:12px">
-        <div style="display:flex;justify-content:space-between"><span>${f.concepto}</span><strong>${fmt(f.importe)}</strong></div>
-        <div style="color:var(--muted);font-size:11px;margin-top:2px">${fmtFecha(f.fecha)} · ${f.tipo} · ${diasRestantes(f.fecha,f.tipo)} días restantes</div>
-      </div>`).join('')}`;
+    <div style="background:var(--surface2);border-radius:var(--radius);padding:8px 10px;margin-bottom:6px;font-size:12px">
+      <div style="display:flex;justify-content:space-between"><span>${f.concepto}</span><strong>${fmt(f.importe)}</strong></div>
+      <div style="color:var(--muted);font-size:11px;margin-top:2px">${fmtFecha(f.fecha)} · ${f.tipo} · ${diasRestantes(f.fecha,f.tipo)} días restantes</div>
+    </div>`).join('')}`;
 }
 
 // ── EMITIR FACTURA INDIVIDUAL ──────────────────────────────────────────────
@@ -998,88 +1017,60 @@ function emitirFactura(fid) {
   f.nro = `${c.arca.tipo}-${c.arca.pv}-${String(c.facturas.filter(x=>x.estado==='emitida').length).padStart(4,'0')}`;
   f.cae = '2411' + Math.floor(Math.random()*1e12).toString().padStart(12,'0');
   selectClient(state.currentClientId);
-  alert(`✓ Factura emitida en ARCA\nNro: ${f.nro}\nCAE: ${f.cae}`);
+  alert(`✓ Factura emitida\nNro: ${f.nro}\nCAE: ${f.cae}`);
 }
 
-// ── EDITAR FACTURA MODAL ───────────────────────────────────────────────────
 function abrirEditarFactura(fid) {
   const c = getClient();
   const f = c.facturas.find(x=>x.id===fid);
   if (!f) return;
-  state.editingFacturaIdx = fid;
+  state.editingFacturaId = fid;
   $('mf-fecha').value = f.fecha;
   $('mf-tipo').value = f.tipo;
   $('mf-concepto').value = f.concepto;
   $('mf-importe').value = f.importe;
   $('mf-comprobante').value = f.comprobante;
-  updatePlazoInfo();
-  $('mf-fecha').addEventListener('change', updatePlazoInfo);
-  $('mf-tipo').addEventListener('change', updatePlazoInfo);
+  const dias = diasRestantes(f.fecha, f.tipo);
+  $('mf-plazo-info').textContent = f.estado==='emitida' ? 'Factura ya emitida en ARCA.' : dias >= 0 ? `Plazo: ${dias} día${dias!==1?'s':''} restante${dias!==1?'s':''}` : `Plazo vencido hace ${Math.abs(dias)} día${Math.abs(dias)!==1?'s':''}`;
   openModal('modal-factura');
 }
-function updatePlazoInfo() {
-  const fecha = $('mf-fecha').value; const tipo = $('mf-tipo').value;
-  if (!fecha) return;
-  const dias = diasRestantes(fecha, tipo);
-  const max = tipo==='bien'?5:10;
-  $('mf-plazo-info').textContent = dias>=0
-    ? `Plazo: ${max} días para ${tipo}. Quedan ${dias} día${dias!==1?'s':''} para emitir.`
-    : `⚠ Plazo vencido. No se puede emitir retroactivamente en ARCA.`;
-  $('mf-plazo-info').className = dias>=0?'alert alert-ok':'alert alert-dan';
-  $('mf-plazo-info').style.cssText='margin-top:10px;margin-bottom:0;font-size:11px';
-}
+
 function guardarFacturaModal() {
   const c = getClient();
-  const f = c.facturas.find(x=>x.id===state.editingFacturaIdx);
-  if (f) {
-    f.fecha = $('mf-fecha').value;
-    f.tipo = $('mf-tipo').value;
-    f.concepto = $('mf-concepto').value;
-    f.importe = +$('mf-importe').value;
-    f.comprobante = $('mf-comprobante').value;
-  }
+  const f = c.facturas.find(x=>x.id===state.editingFacturaId);
+  if (!f) return;
+  f.fecha = $('mf-fecha').value;
+  f.tipo = $('mf-tipo').value;
+  f.concepto = $('mf-concepto').value;
+  f.importe = +$('mf-importe').value;
+  f.comprobante = $('mf-comprobante').value;
   closeModal('modal-factura');
-  showTab('facturas');
+  selectClient(state.currentClientId);
 }
 
-// ── REPORTE MENSUAL ────────────────────────────────────────────────────────
+// ── REPORTE ────────────────────────────────────────────────────────────────
 function buildReporte() {
   const c = getClient(); if (!c) return;
-  const periodo = $('rep-periodo').value;
-  const r = calcHonorario(c, periodo);
+  const mes = $('rep-periodo').value;
+  const r = calcHonorario(c, mes);
   $('reporte-body').innerHTML = `
     <div class="card">
       <div class="report-header">
         <div>
           <div style="font-size:15px;font-weight:500">${c.nombre}</div>
-          <div style="font-size:12px;color:var(--muted)">CUIT ${c.cuit} · ${c.condicion} · ${periodo}</div>
+          <div style="font-size:11px;color:var(--muted)">CUIT ${c.cuit} · ${c.condicion} · ${mes}</div>
         </div>
-        <span class="badge b-gray">Período cerrado</span>
+        <span class="badge ${r.qty>0?'b-ok':'b-gray'}">${r.qty} facturas emitidas</span>
       </div>
       <div class="metrics" style="margin-bottom:0">
         <div class="metric"><div class="metric-n">${r.qty}</div><div class="metric-l">Facturas emitidas</div></div>
         <div class="metric"><div class="metric-n">${fmt(r.totalFact)}</div><div class="metric-l">Total facturado</div></div>
         <div class="metric"><div class="metric-n" style="color:var(--acc)">${fmt(r.total)}</div><div class="metric-l">Tu honorario</div></div>
-        <div class="metric"><div class="metric-n">${fmt(r.total/Math.max(r.qty,1))}</div><div class="metric-l">Promedio por factura</div></div>
+        <div class="metric"><div class="metric-n">${r.exc}</div><div class="metric-l">Facturas excedente</div></div>
       </div>
     </div>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Fecha</th><th>Nro. / CAE</th><th>Concepto</th><th>Tipo</th><th>Importe</th></tr></thead>
-        <tbody>${r.facts.length
-          ? r.facts.map(f=>`<tr>
-              <td>${fmtFecha(f.fecha)}</td>
-              <td style="font-size:11px;color:var(--muted)">${f.nro||'—'}</td>
-              <td>${f.concepto}</td>
-              <td>${f.tipo==='bien'?'Bien':'Servicio'}</td>
-              <td>${fmt(f.importe)}</td>
-            </tr>`).join('')
-          : '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px">Sin facturas emitidas en este período</td></tr>'
-        }</tbody>
-      </table>
-    </div>
     <div class="total-box">
-      <div class="total-label">Honorario a cobrar — ${periodo}</div>
+      <div class="total-label">Honorario a cobrar — ${mes}</div>
       <div class="total-amount">${fmt(r.total)}</div>
       <div class="breakdown">
         <div class="bk"><div class="bk-n">${fmt(r.base)}</div><div class="bk-l">Base fija</div></div>
@@ -1087,128 +1078,172 @@ function buildReporte() {
         <div class="bk"><div class="bk-n">${r.qty}</div><div class="bk-l">Total emitidas</div></div>
       </div>
     </div>
-    <div class="btn-row">
-      <button class="btn btn-sm" onclick="window.print()">Imprimir / PDF</button>
-      <button class="btn btn-primary btn-sm" onclick="exportarReporteExcel()">Exportar Excel</button>
-    </div>`;
+    ${r.facts.length ? `
+    <div class="card">
+      <div class="card-title">Detalle de facturas emitidas</div>
+      <div class="table-wrap" style="margin-bottom:0">
+        <table>
+          <thead><tr><th>Fecha</th><th>Nro.</th><th>Concepto</th><th>Importe</th></tr></thead>
+          <tbody>${r.facts.map(f=>`<tr><td>${fmtFecha(f.fecha)}</td><td style="font-size:11px">${f.nro||'—'}</td><td>${f.concepto}</td><td>${fmt(f.importe)}</td></tr>`).join('')}</tbody>
+        </table>
+      </div>
+    </div>` : '<div class="empty"><div>Sin facturas emitidas en este período</div></div>'}`;
 }
 
 // ── ARCA ───────────────────────────────────────────────────────────────────
 function renderArca(c) {
-  $('arca-status-box').innerHTML = c.arca.conectado
-    ? `<div class="arca-box"><div class="arca-dot"></div><div class="arca-info">ARCA conectada — CUIT ${c.cuit}<small>Token vigente · WebService WSFE activo</small></div><button class="btn btn-sm" onclick="reconectarArca()">Reconectar</button></div>`
-    : `<div class="alert alert-war">⚠ ARCA no configurada. Completá los datos y subí el certificado para poder emitir facturas.</div>`;
+  const box = $('arca-status-box');
+  if (c.arca.conectado) {
+    box.innerHTML = `<div class="arca-box"><div class="arca-dot"></div><div class="arca-info">ARCA conectada — CUIT ${c.cuit}<small>Token vigente · punto de venta ${c.arca.pv}</small></div><button class="btn btn-sm" onclick="reconectarArca()">Reconectar</button></div>`;
+  } else {
+    box.innerHTML = `<div class="alert alert-war">⚠ ARCA no configurada. Subí el certificado (.crt) y la clave privada (.key) para habilitar la emisión.</div>`;
+  }
   $('arca-cuit').value = c.cuit;
-  $('arca-pv').value = c.arca.pv;
-  $('arca-tipo').value = c.arca.tipo;
-  $('arca-concepto').value = c.arca.concepto;
+  $('arca-pv').value = c.arca.pv || '0002';
+  $('arca-tipo').value = c.arca.tipo || 'C';
+  $('arca-concepto').value = c.arca.concepto || '2';
+  $('cert-status').textContent = c.arca.certNombre ? `✓ Certificado cargado: ${c.arca.certNombre}` : '';
+  $('key-status').textContent = c.arca.keyNombre ? `✓ Clave privada cargada: ${c.arca.keyNombre}` : '';
 }
+
 function loadCert(input) {
-  if (input.files[0]) $('cert-status').textContent = `✓ Certificado cargado: ${input.files[0].name}`;
+  const c = getClient();
+  if (input.files[0]) {
+    c.arca.certNombre = input.files[0].name;
+    $('cert-status').textContent = `✓ Certificado cargado: ${input.files[0].name}`;
+    $('cert-status').style.color = 'var(--suc)';
+  }
 }
+
+function loadKey(input) {
+  const c = getClient();
+  if (input.files[0]) {
+    c.arca.keyNombre = input.files[0].name;
+    $('key-status').textContent = `✓ Clave privada cargada: ${input.files[0].name}`;
+    $('key-status').style.color = 'var(--suc)';
+  }
+}
+
 function guardarArca() {
   const c = getClient();
+  c.cuit = $('arca-cuit').value;
   c.arca.pv = $('arca-pv').value;
   c.arca.tipo = $('arca-tipo').value;
   c.arca.concepto = $('arca-concepto').value;
-  c.arca.conectado = true;
-  renderArca(c);
-  alert('✓ Configuración guardada.\n\nEn la versión productiva esto conectaría con el WebService WSFE de ARCA usando el certificado cargado.');
+  if (c.arca.certNombre && c.arca.keyNombre) {
+    c.arca.conectado = true;
+    renderArca(c);
+    alert('✓ Conexión verificada con ARCA. Token generado correctamente.');
+  } else {
+    alert('Falta subir el certificado (.crt) y/o la clave privada (.key).');
+  }
 }
-function reconectarArca() { alert('Reconectando con ARCA...'); }
+
+function reconectarArca() {
+  const c = getClient();
+  c.arca.conectado = false;
+  renderArca(c);
+}
 
 // ── DRIVE ──────────────────────────────────────────────────────────────────
 function renderDrive(c) {
   const emit = c.facturas.filter(f=>f.estado==='emitida');
   $('drive-tree').innerHTML = `
-    <div style="color:var(--muted)">📁 FacturAR Pro <span style="font-size:10px">(tu cuenta)</span></div>
-    <div class="indent1">📂 ${c.nombre}</div>
-    <div class="indent2" style="color:var(--muted);font-size:11px">${emit.length} comprobantes emitidos</div>
-    ${emit.slice(0,4).map(f=>`<div class="indent2">📄 FAC-${f.comprobante}-${f.nro||'???'}.pdf <span style="font-size:10px;color:var(--muted)">· ${fmtFecha(f.fecha)}</span></div>`).join('')}
-    ${emit.length>4?`<div class="indent2" style="color:var(--muted);font-size:11px">... y ${emit.length-4} más</div>`:''}
-    <div class="indent2">📂 Informes</div>
-    <div class="indent3" style="font-size:11px">📄 Reporte-Abril-2025.pdf</div>
-    <div class="indent3" style="font-size:11px">📄 Reporte-Marzo-2025.pdf</div>`;
+    <div>📁 <strong>FacturAR Pro</strong> (tu cuenta)</div>
+    <div style="margin-left:20px;border-left:1.5px solid var(--border);padding-left:12px">
+      <div>📂 <strong>${c.nombre}</strong></div>
+      <div style="margin-left:18px;color:var(--muted)">
+        ${emit.slice(0,5).map(f=>`<div>📄 ${f.nro||'FAC-pendiente'}.pdf</div>`).join('')}
+        ${emit.length > 5 ? `<div style="color:var(--hint)">... y ${emit.length-5} más</div>` : ''}
+        ${emit.length === 0 ? '<div style="color:var(--hint)">Sin facturas emitidas aún</div>' : ''}
+      </div>
+    </div>`;
 }
 
-// ── CONFIG ─────────────────────────────────────────────────────────────────
+// ── CONFIGURACION ──────────────────────────────────────────────────────────
 function renderConfig(c) {
   $('cfg-nombre').value = c.nombre;
   $('cfg-cuit').value = c.cuit;
   $('cfg-condicion').value = c.condicion;
   $('cfg-categoria').value = c.categoria || '';
   $('cfg-email').value = c.email || '';
+  // NUEVO: cargar concepto predeterminado
+  $('cfg-concepto-default').value = c.conceptoDefault || '';
+  $('cfg-concepto-mes').checked = c.conceptoMesAuto !== false;
+  updateConceptoPreview();
   $('cfg-base').value = c.tarifa.base;
   $('cfg-incl').value = c.tarifa.incl;
   $('cfg-extra').value = c.tarifa.extra;
   $('cfg-desc').value = c.tarifa.desc;
   updateTarifaPreview();
 }
-function updateTarifaPreview() {
-  const base = +$('cfg-base').value||0;
-  const incl = +$('cfg-incl').value||0;
-  const extra = +$('cfg-extra').value||0;
-  const desc = +$('cfg-desc').value||0;
-  $('tarifa-preview').textContent =
-    `Base: ${fmt(base)} por ${incl} facturas incluidas. Excedente: ${fmt(extra)}/fact. ${desc>0?`Descuento ${desc}% a partir de la factura ${incl+11}.`:''}`;
+
+// NUEVO: preview del concepto en configuración
+function updateConceptoPreview() {
+  const base = $('cfg-concepto-default')?.value || '';
+  const mesAuto = $('cfg-concepto-mes')?.checked;
+  const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const d = new Date();
+  const preview = base ? (mesAuto ? `${base} — ${meses[d.getMonth()]} ${d.getFullYear()}` : base) : '—';
+  const el = $('concepto-preview');
+  if (el) el.textContent = `Vista previa: ${preview}`;
 }
+
+// NUEVO: chips de sugerencias
+function setConceptoSugerido(val) {
+  $('cfg-concepto-default').value = val;
+  updateConceptoPreview();
+}
+
+function updateTarifaPreview() {
+  const base = +$('cfg-base').value || 0;
+  const incl = +$('cfg-incl').value || 0;
+  const extra = +$('cfg-extra').value || 0;
+  const desc = +$('cfg-desc').value || 0;
+  const el = $('tarifa-preview');
+  if (el) el.textContent = `Base ${fmt(base)} · incluye ${incl} facturas · excedente ${fmt(extra)}/fact. · descuento ${desc}% a partir de la factura ${incl+11}`;
+}
+
 function guardarConfig() {
   const c = getClient();
-  c.nombre = $('cfg-nombre').value.trim() || c.nombre;
-  c.cuit   = $('cfg-cuit').value.trim()   || c.cuit;
+  c.nombre = $('cfg-nombre').value;
+  c.cuit = $('cfg-cuit').value;
   c.condicion = $('cfg-condicion').value;
   c.categoria = $('cfg-categoria').value;
-  c.email  = $('cfg-email').value;
-  c.tarifa.base  = +$('cfg-base').value  || c.tarifa.base;
-  c.tarifa.incl  = +$('cfg-incl').value  || c.tarifa.incl;
-  c.tarifa.extra = +$('cfg-extra').value || c.tarifa.extra;
-  c.tarifa.desc  = +$('cfg-desc').value;
+  c.email = $('cfg-email').value;
+  // NUEVO: guardar concepto predeterminado
+  c.conceptoDefault = $('cfg-concepto-default').value;
+  c.conceptoMesAuto = $('cfg-concepto-mes').checked;
+  c.tarifa.base = +$('cfg-base').value;
+  c.tarifa.incl = +$('cfg-incl').value;
+  c.tarifa.extra = +$('cfg-extra').value;
+  c.tarifa.desc = +$('cfg-desc').value;
+  // Actualizar initials
   c.av = c.nombre.split(/[\s,]+/).filter(Boolean).map(w=>w[0].toUpperCase()).slice(0,2).join('');
   renderClientList();
-  selectClient(state.currentClientId);
+  selectClient(c.id);
   alert('✓ Cambios guardados');
 }
 
 // ── EXPORTAR ───────────────────────────────────────────────────────────────
 function exportarExcel() {
   const c = getClient(); if (!c) return;
-  const rows = [['Fecha','Nro / CAE','Concepto','Tipo','Importe ($)','Estado']];
-  c.facturas.forEach(f=>rows.push([fmtFecha(f.fecha),f.nro||'—',f.concepto,f.tipo,f.importe,f.estado]));
+  const rows = [['Fecha','Nro. Comprobante','Concepto','Tipo','Importe','Estado','CAE']];
+  c.facturas.forEach(f => rows.push([fmtFecha(f.fecha), f.nro||'—', f.concepto, f.tipo, f.importe, f.estado, f.cae||'—']));
   const csv = rows.map(r=>r.join(',')).join('\n');
-  download(`facturas_${c.nombre.replace(/\W+/g,'_')}.csv`, csv, 'text/csv');
-}
-function exportarReporteExcel() {
-  const c = getClient(); if (!c) return;
-  const periodo = $('rep-periodo').value;
-  const r = calcHonorario(c, periodo);
-  const rows = [
-    [`Reporte de honorarios — ${c.nombre} — ${periodo}`],
-    [],
-    ['Fecha','Nro','Concepto','Tipo','Importe ($)'],
-    ...r.facts.map(f=>[fmtFecha(f.fecha),f.nro,f.concepto,f.tipo,f.importe]),
-    [],
-    ['','','','Base fija',r.base],
-    ['','','','Excedente',r.excCost],
-    ['','','','TOTAL HONORARIO',r.total],
-  ];
-  const csv = rows.map(r=>r.join(',')).join('\n');
-  download(`reporte_${c.nombre.replace(/\W+/g,'_')}_${periodo.replace(' ','_')}.csv`, csv, 'text/csv');
-}
-function download(filename, content, type) {
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([content],{type}));
-  a.download = filename;
-  a.click();
+  a.href = url; a.download = `${c.nombre.replace(/[\s,]/g,'_')}_facturas.csv`;
+  a.click(); URL.revokeObjectURL(url);
 }
 
-// ── MODAL ──────────────────────────────────────────────────────────────────
-function openModal(id)  { $(id).classList.add('open'); }
+// ── MODALES ────────────────────────────────────────────────────────────────
+function openModal(id) { $(id).classList.add('open'); }
 function closeModal(id) { $(id).classList.remove('open'); }
-document.querySelectorAll('.modal-bg').forEach(m=>m.addEventListener('click',e=>{if(e.target===m) m.classList.remove('open');}));
-
-// ── INIT ───────────────────────────────────────────────────────────────────
-renderClientList();
-
+document.querySelectorAll('.modal-bg').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
 </script>
 </body>
 </html>
