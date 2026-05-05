@@ -167,6 +167,71 @@ input[type="file"] { display: none; }
     }
   } catch(e) {}
 })();
+
+function guardarCola() {
+  try {
+    localStorage.setItem('cola_' + state.currentClientId, JSON.stringify(colaFacturas));
+  } catch(e) {}
+}
+
+function cargarCola(clientId) {
+  try {
+    var raw = localStorage.getItem('cola_' + clientId);
+    return raw ? JSON.parse(raw) : [];
+  } catch(e) { return []; }
+}
+
+function eliminarDeCola(facturaId) {
+  colaFacturas = colaFacturas.filter(function(f) { return f.id !== facturaId; });
+  guardarCola();
+  renderCola();
+}
+
+
+function renderTabFacturas() {
+  var tabla = document.getElementById('facturas-tabla');
+  if (!tabla) return;
+  var client = getClient();
+  if (!client) return;
+
+  // Combinar facturas del estado + historial localStorage
+  var historial = getHistorial(state.currentClientId);
+  var todasMap  = {};
+
+  // Primero las del estado del cliente
+  (client.facturas || []).forEach(function(f) {
+    todasMap[f.id] = f;
+  });
+  // Luego las del historial (pueden tener CAE real)
+  historial.forEach(function(f) {
+    todasMap[f.id] = f;
+  });
+
+  var todas = Object.values(todasMap).sort(function(a, b) {
+    return (b.fecha || '').localeCompare(a.fecha || '');
+  });
+
+  if (todas.length === 0) {
+    tabla.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#888;padding:20px">No hay facturas emitidas aun</td></tr>';
+    return;
+  }
+
+  tabla.innerHTML = todas.map(function(f) {
+    return '<tr>' +
+      '<td style="font-size:12px">' + (f.fecha || '') + '</td>' +
+      '<td style="font-size:11px;color:#666">' + (f.nro || '-') + '</td>' +
+      '<td style="font-size:12px">' + (f.concepto || '') + '</td>' +
+      '<td style="font-size:12px">' + (f.receptor_nombre || '-') + '</td>' +
+      '<td style="font-size:12px;font-weight:500">$' + ((f.importe || 0).toLocaleString('es-AR')) + '</td>' +
+      '<td style="font-size:11px">' +
+        (f.cae && f.cae !== 'emitida-anterior'
+          ? '<span style="color:#3B6D11;font-weight:500">CAE: ' + f.cae + '</span>'
+          : '<span style="color:#888">Emitida</span>') +
+      '</td>' +
+      '</tr>';
+  }).join('');
+}
+
 </script>
 
 <!-- LOGIN -->
@@ -234,7 +299,7 @@ input[type="file"] { display: none; }
         <div class="tabs" id="main-tabs">
           <div class="tab active" onclick="showTab('resumen')">Resumen</div>
           <div class="tab" onclick="showTab('cargar')">Cargar</div>
-          <div class="tab" onclick="showTab('facturas')">Facturas</div>
+          <div class="tab" onclick="showTab('facturas'); renderTabFacturas();">Facturas</div>
           <div class="tab" onclick="showTab('reporte')">Reporte mensual</div>
           <div class="tab" onclick="showTab('arca')">ARCA</div>
           <div class="tab" onclick="showTab('drive')">Drive</div>
@@ -300,7 +365,7 @@ input[type="file"] { display: none; }
             </div>
             <div class="btn-row">
               <button class="btn btn-sm" onclick="clearCola()">Limpiar</button>
-              <button class="btn btn-primary btn-sm" onclick="emitirTodos()">Emitir todos en ARCA ???</button>
+              <button class="btn btn-primary btn-sm" onclick="emitirTodos()">Emitir todos sin duplicados ???</button>
             </div>
           </div>
         </div>
@@ -712,7 +777,9 @@ function selectClient(id) {
   else if (pend > 0) { badge.textContent = `${pend} pendiente${pend>1?'s':''}`; badge.className = 'badge b-war'; }
   else { badge.textContent = 'Al d??a'; badge.className = 'badge b-ok'; }
   renderClientList();
-  showTab('resumen');
+ showTab('resumen');
+  colaFacturas = cargarCola(id);
+  renderCola();
 }
 
 function agregarCliente() {
@@ -1023,6 +1090,7 @@ function renderCola() {
   if (!contenedor) return;
   if (!colaFacturas || colaFacturas.length === 0) {
     contenedor.style.display = 'none';
+    guardarCola();
     return;
   }
   contenedor.style.display = 'block';
@@ -1038,17 +1106,59 @@ function renderCola() {
     var plazoTxt = plazo < 0 ? 'Vencido' : plazo + 'd';
     var plazoColor = plazo < 0 ? '#A32D2D' : plazo <= 2 ? '#854F0B' : '#3B6D11';
     var fid = f.id;
-    rows += '<tr>';
-    rows += '<td>' + (f.fecha || '') + '</td>';
-    rows += '<td><input id="conc-' + fid + '" value="' + (f.concepto || '') + '" style="width:100%;font-size:12px;padding:2px 6px;border:0.5px solid #ccc;border-radius:4px" /></td>';
-    rows += '<td><select id="tipo-' + fid + '" style="font-size:12px;padding:2px;border:0.5px solid #ccc;border-radius:4px"><option value="servicio">Servicio</option><option value="bien">Bien</option></select></td>';
-    rows += '<td><input type="number" id="imp-' + fid + '" value="' + (f.importe || 0) + '" style="width:90px;font-size:12px;padding:2px 6px;border:0.5px solid #ccc;border-radius:4px" /></td>';
-    rows += '<td style="color:' + plazoColor + ';font-weight:500">' + plazoTxt + '</td>';
-    rows += '<td><span style="font-size:11px;padding:2px 8px;border-radius:4px;background:#FAEEDA;color:#854F0B">Pendiente</span></td>';
-    rows += '<td><button id="btn-' + fid + '" onclick="emitirFacturaReal(\'' + fid + '\')" style="font-size:12px;padding:4px 12px;background:#185FA5;color:#fff;border:none;border-radius:6px;cursor:pointer">Emitir</button></td>';
+    var isDup = f.duplicado;
+    var isEmitida = f.estado === 'emitida';
+    var rowBg = isDup ? 'background:#FFFBEA;border-left:3px solid #F59E0B' : isEmitida ? 'background:#F0FAF0;border-left:3px solid #3B6D11' : '';
+
+    rows += '<tr style="' + rowBg + '">';
+    rows += '<td style="font-size:12px">' + (f.fecha || '') + '</td>';
+
+    // Columna concepto con aviso de duplicado
+    var conceptoCell = '<input id="conc-' + fid + '" value="' + (f.concepto || '').replace(/"/g, '&quot;') + '" ' +
+      (isEmitida ? 'disabled ' : '') +
+      'style="width:100%;font-size:11px;padding:2px 4px;border:0.5px solid #ccc;border-radius:4px" />';
+    if (isDup) conceptoCell += '<div style="font-size:10px;color:#854F0B;margin-top:2px">??? Mismo importe y fecha ya facturado</div>';
+    rows += '<td>' + conceptoCell + '</td>';
+
+    rows += '<td><select id="tipo-' + fid + '" ' + (isEmitida ? 'disabled ' : '') +
+      'style="font-size:11px;padding:2px;border:0.5px solid #ccc;border-radius:4px">' +
+      '<option value="servicio">Servicio</option><option value="bien">Bien</option></select></td>';
+    rows += '<td><input type="number" id="imp-' + fid + '" value="' + (f.importe || 0) + '" ' +
+      (isEmitida ? 'disabled ' : '') +
+      'style="width:85px;font-size:11px;padding:2px 4px;border:0.5px solid #ccc;border-radius:4px" /></td>';
+    rows += '<td style="color:' + plazoColor + ';font-weight:500;font-size:11px">' + plazoTxt + '</td>';
+
+    var estadoHtml;
+    if (isEmitida) {
+      estadoHtml = '<span style="font-size:10px;padding:2px 6px;border-radius:4px;background:#EAF3DE;color:#3B6D11">??? Emitida</span>';
+    } else if (isDup) {
+      estadoHtml = '<span style="font-size:10px;padding:2px 6px;border-radius:4px;background:#FFF3CD;color:#856404">??? Duplicado?</span>';
+    } else {
+      estadoHtml = '<span style="font-size:10px;padding:2px 6px;border-radius:4px;background:#FAEEDA;color:#854F0B">Pendiente</span>';
+    }
+    rows += '<td>' + estadoHtml + '</td>';
+
+    var botonesHtml;
+    if (isEmitida) {
+      botonesHtml = '<span style="font-size:10px;color:#3B6D11">CAE OK</span>';
+    } else if (isDup) {
+      botonesHtml =
+        '<button id="btn-' + fid + '" onclick="emitirFacturaReal(\'' + fid + '\')" ' +
+        'style="font-size:11px;padding:3px 8px;background:#856404;color:#fff;border:none;border-radius:5px;cursor:pointer;margin-right:4px">Emitir igual</button>' +
+        '<button onclick="eliminarDeCola(\'' + fid + '\')" ' +
+        'style="font-size:11px;padding:3px 8px;background:#fff;color:#A32D2D;border:1px solid #A32D2D;border-radius:5px;cursor:pointer">???</button>';
+    } else {
+      botonesHtml =
+        '<button id="btn-' + fid + '" onclick="emitirFacturaReal(\'' + fid + '\')" ' +
+        'style="font-size:11px;padding:3px 8px;background:#185FA5;color:#fff;border:none;border-radius:5px;cursor:pointer;margin-right:4px">Emitir</button>' +
+        '<button onclick="eliminarDeCola(\'' + fid + '\')" ' +
+        'style="font-size:11px;padding:3px 8px;background:#fff;color:#999;border:1px solid #ddd;border-radius:5px;cursor:pointer">???</button>';
+    }
+    rows += '<td>' + botonesHtml + '</td>';
     rows += '</tr>';
   }
   tabla.innerHTML = rows;
+  guardarCola();
 }
 
 function clearCola() { cola=[]; renderCola(); $('preview-box').innerHTML='<div class="empty" style="padding:20px"><div>Carg?? un archivo para ver los datos extra??dos</div></div>'; }
@@ -1066,20 +1176,90 @@ function emitirCola(i) {
   alert(`??? Factura emitida en ARCA\nNro: ${f.nro}\nCAE: ${f.cae}`);
 }
 
-function emitirTodos() {
-  const pendientes = cola.filter(f=>diasRestantes(f.fecha,f.tipo)>=0);
-  if (!pendientes.length) { alert('No hay comprobantes dentro del plazo para emitir.'); return; }
-  const c = getClient();
-  pendientes.forEach(f=>{
-    f.estado='emitida';
-    f.nro=`${c.arca.tipo}-${c.arca.pv}-${String(c.facturas.filter(x=>x.estado==='emitida').length+1).padStart(4,'0')}`;
-    f.cae='2411'+Math.floor(Math.random()*1e12).toString().padStart(12,'0');
-    c.facturas.push({...f});
+async function emitirTodos() {
+  var client = getClient();
+  if (!client) return;
+
+  var pendientes = colaFacturas.filter(function(f) {
+    return f.estado !== 'emitida' && !f.duplicado;
   });
-  cola = cola.filter(f=>diasRestantes(f.fecha,f.tipo)<0);
-  renderCola();
-  selectClient(state.currentClientId);
-  alert(`??? ${pendientes.length} factura${pendientes.length>1?'s':''} emitida${pendientes.length>1?'s':''} en ARCA`);
+
+  if (pendientes.length === 0) {
+    alert('No hay facturas pendientes para emitir (los duplicados se saltean).');
+    return;
+  }
+
+  if (!confirm('Se van a emitir ' + pendientes.length + ' factura' + (pendientes.length > 1 ? 's' : '') +
+    ' en ARCA. Los posibles duplicados NO se emitiran. Confirmas?')) return;
+
+  var btn = document.querySelector('[onclick="emitirTodos()"]');
+  if (btn) { btn.disabled = true; btn.textContent = 'Emitiendo 0/' + pendientes.length + '...'; }
+
+  var ok = 0; var errores = 0;
+
+  for (var i = 0; i < pendientes.length; i++) {
+    var f = pendientes[i];
+    var btnF = document.getElementById('btn-' + f.id);
+    if (btnF) { btnF.textContent = '...'; btnF.disabled = true; }
+    if (btn) btn.textContent = 'Emitiendo ' + (i+1) + '/' + pendientes.length + '...';
+
+    try {
+      var concEl = document.getElementById('conc-' + f.id);
+      var impEl  = document.getElementById('imp-'  + f.id);
+      var tipoEl = document.getElementById('tipo-' + f.id);
+      if (concEl) f.concepto = concEl.value;
+      if (impEl)  f.importe  = parseFloat(impEl.value) || 0;
+      if (tipoEl) f.tipo     = tipoEl.value;
+
+      var resp = await fetch('/api/emitir', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          cuit_emisor:     client.cuit.replace(/-/g,''),
+          punto_venta:     (client.arca && client.arca.pv) ? client.arca.pv : '2',
+          receptor_cuit:   f.receptor_cuit   || '0',
+          receptor_nombre: f.receptor_nombre || '',
+          importe:  f.importe,
+          concepto: f.concepto,
+          fecha:    f.fecha,
+          tipo_cbte: 11
+        })
+      });
+      var data = await resp.json();
+
+      if (data.ok) {
+        f.estado = 'emitida';
+        f.cae    = data.cae;
+        f.nro    = data.nro_comprobante;
+        if (typeof guardarEnHistorial === 'function')
+          guardarEnHistorial(state.currentClientId, Object.assign({}, f));
+        ok++;
+        if (btnF) { btnF.textContent = 'CAE OK'; btnF.style.background = '#3B6D11'; }
+      } else {
+        errores++;
+        var msg = (data.errores || []).join(', ') || data.error || 'Error desconocido';
+        if (btnF) { btnF.disabled = false; btnF.textContent = 'Error'; btnF.style.background = '#A32D2D'; btnF.title = msg; }
+        console.error('Error factura ' + f.id + ': ' + msg);
+      }
+    } catch(err) {
+      errores++;
+      if (btnF) { btnF.disabled = false; btnF.textContent = 'Error'; }
+      console.error('Error: ' + err.message);
+    }
+
+    if (typeof guardarCola === 'function') guardarCola();
+    renderCola();
+
+    if (i < pendientes.length - 1) {
+      await new Promise(function(r) { setTimeout(r, 800); });
+    }
+  }
+
+  if (btn) { btn.disabled = false; btn.textContent = 'Emitir todos sin duplicados'; }
+
+  var msg = ok + ' factura' + (ok !== 1 ? 's' : '') + ' emitida' + (ok !== 1 ? 's' : '') + ' correctamente.';
+  if (errores > 0) msg += '\n' + errores + ' con error ??? ver botones en rojo.';
+  alert(msg);
 }
 
 function showPreviewExtracted(rows) {
@@ -1383,6 +1563,8 @@ function emitirFacturaReal(facturaId) {
     if (data.ok) {
       factura.estado = 'emitida';
       factura.cae = data.cae;
+      guardarEnHistorial(state.currentClientId, Object.assign({}, factura, {cae: data.cae, nro: data.nro_comprobante}));
+      guardarCola();
       client.facturas = client.facturas || [];
       client.facturas.unshift(Object.assign({}, factura));
       if (btn) {
