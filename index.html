@@ -1,1590 +1,751 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>FacturAR Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --bg: #f5f5f3; --surface: #ffffff; --surface2: #f0efeb;
-  --border: rgba(0,0,0,0.1); --border2: rgba(0,0,0,0.18);
-  --text: #1a1a18; --muted: #6b6b67; --hint: #9a9a96;
-  --acc: #185FA5; --acc-l: #E6F1FB; --acc-m: #378ADD;
-  --suc: #3B6D11; --suc-l: #EAF3DE;
-  --war: #854F0B; --war-l: #FAEEDA;
-  --dan: #A32D2D; --dan-l: #FCEBEB;
-  --radius: 8px; --radius-lg: 12px;
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F7F6F3;--surface:#FFFFFF;--surface2:#F0EFE9;--border:rgba(0,0,0,.09);--border2:rgba(0,0,0,.16);
+  --text:#1C1C1A;--muted:#6B6B65;--hint:#9A9A92;
+  --acc:#1A5FB4;--acc-l:#E8F0FC;--acc-m:#4A8AE8;
+  --suc:#2D6A1F;--suc-l:#E8F5E0;--war:#8A5000;--war-l:#FFF0D6;--dan:#A02020;--dan-l:#FCEAEA;
+  --r:8px;--r-lg:14px;--shadow:0 1px 4px rgba(0,0,0,.08);
 }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; min-height: 100vh; }
-.login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--bg); }
-.login-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 40px; width: 360px; }
-.login-logo { font-size: 22px; font-weight: 600; color: var(--acc); margin-bottom: 4px; }
-.login-sub { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
-.login-card h2 { font-size: 16px; font-weight: 500; margin-bottom: 20px; }
-.app { display: flex; height: 100vh; overflow: hidden; }
-.sidebar { width: 220px; min-width: 220px; background: var(--surface); border-right: 0.5px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
-.sidebar-logo { padding: 18px 16px 14px; border-bottom: 0.5px solid var(--border); }
-.sidebar-logo-name { font-size: 15px; font-weight: 600; color: var(--acc); }
-.sidebar-logo-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
-.sidebar-search { padding: 10px 12px; border-bottom: 0.5px solid var(--border); }
-.client-list { flex: 1; overflow-y: auto; padding: 6px; }
-.client-item { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: var(--radius); cursor: pointer; transition: background 0.12s; }
-.client-item:hover { background: var(--surface2); }
-.client-item.active { background: var(--acc-l); }
-.client-info { flex: 1; min-width: 0; }
-.client-name { font-size: 12px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.client-cuit { font-size: 10px; color: var(--muted); margin-top: 1px; }
-.sidebar-footer { padding: 10px 12px; border-top: 0.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-.sidebar-user { font-size: 12px; font-weight: 500; }
-.sidebar-user-sub { font-size: 10px; color: var(--muted); }
-.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--bg); }
-.topbar { padding: 12px 20px; background: var(--surface); border-bottom: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.topbar-left { display: flex; align-items: center; gap: 10px; }
-.topbar-title { font-size: 14px; font-weight: 500; }
-.topbar-sub { font-size: 11px; color: var(--muted); }
-.content { flex: 1; overflow-y: auto; padding: 20px; }
-.tabs { display: flex; border-bottom: 0.5px solid var(--border); margin-bottom: 18px; background: var(--surface); border-radius: var(--radius-lg) var(--radius-lg) 0 0; padding: 0 4px; }
-.tab { padding: 10px 16px; font-size: 12px; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -0.5px; transition: color 0.12s; white-space: nowrap; }
-.tab:hover { color: var(--text); }
-.tab.active { color: var(--acc); border-bottom-color: var(--acc); font-weight: 500; }
-.tab-panel { display: none; }
-.tab-panel.active { display: block; }
-.card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 14px; }
-.card-title { font-size: 13px; font-weight: 500; margin-bottom: 12px; }
-.metrics { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; margin-bottom: 16px; }
-.metric { background: var(--surface); border-radius: var(--radius); padding: 12px 14px; border: 0.5px solid var(--border); }
-.metric-n { font-size: 22px; font-weight: 500; }
-.metric-l { font-size: 11px; color: var(--muted); margin-top: 2px; }
-label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 3px; margin-top: 10px; }
-label:first-child { margin-top: 0; }
-input, select, textarea { width: 100%; padding: 8px 10px; border-radius: var(--radius); border: 0.5px solid var(--border2); background: var(--surface); color: var(--text); font-size: 13px; font-family: inherit; transition: border-color 0.12s; }
-input:focus, select:focus, textarea:focus { outline: none; border-color: var(--acc-m); }
-.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.btn { padding: 7px 16px; border-radius: var(--radius); border: 0.5px solid var(--border2); background: var(--surface); color: var(--text); font-size: 12px; cursor: pointer; font-family: inherit; transition: background 0.12s; white-space: nowrap; }
-.btn:hover { background: var(--surface2); }
-.btn-primary { background: var(--acc); color: #fff; border-color: var(--acc); }
-.btn-primary:hover { background: #0C447C; border-color: #0C447C; }
-.btn-danger { background: var(--dan-l); color: var(--dan); border-color: #F09595; }
-.btn-sm { padding: 4px 11px; font-size: 11px; }
-.btn-row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
-.badge { display: inline-block; padding: 2px 9px; border-radius: 99px; font-size: 11px; font-weight: 500; }
-.b-ok { background: var(--suc-l); color: var(--suc); }
-.b-war { background: var(--war-l); color: var(--war); }
-.b-dan { background: var(--dan-l); color: var(--dan); }
-.b-inf { background: var(--acc-l); color: var(--acc); }
-.b-gray { background: var(--surface2); color: var(--muted); }
-.dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-.dot-ok { background: #639922; }
-.dot-war { background: #EF9F27; }
-.dot-dan { background: #E24B4A; }
-.av { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; flex-shrink: 0; }
-.av-lg { width: 40px; height: 40px; font-size: 14px; }
-.av-blue { background: #E6F1FB; color: #0C447C; }
-.av-teal { background: #E1F5EE; color: #085041; }
-.av-amber { background: #FAEEDA; color: #633806; }
-.av-coral { background: #FAECE7; color: #712B13; }
-.av-purple { background: #EEEDFE; color: #3C3489; }
-.table-wrap { border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 14px; }
-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-th { background: var(--surface2); padding: 8px 12px; text-align: left; font-weight: 500; color: var(--muted); font-size: 11px; border-bottom: 0.5px solid var(--border); white-space: nowrap; }
-td { padding: 8px 12px; border-bottom: 0.5px solid var(--border); color: var(--text); }
-tr:last-child td { border-bottom: none; }
-tr:hover td { background: var(--surface2); }
-.alert { border-radius: var(--radius); padding: 10px 14px; font-size: 12px; margin-bottom: 14px; display: flex; gap: 8px; align-items: flex-start; line-height: 1.5; }
-.alert-info { background: var(--acc-l); color: var(--acc); border: 0.5px solid var(--acc-m); }
-.alert-ok { background: var(--suc-l); color: var(--suc); border: 0.5px solid #639922; }
-.alert-war { background: var(--war-l); color: var(--war); border: 0.5px solid #EF9F27; }
-.alert-dan { background: var(--dan-l); color: var(--dan); border: 0.5px solid #E24B4A; }
-.upload-zone { border: 1.5px dashed var(--border2); border-radius: var(--radius); padding: 24px; text-align: center; cursor: pointer; background: var(--surface2); transition: all 0.15s; }
-.upload-zone:hover { border-color: var(--acc-m); background: var(--acc-l); }
-.upload-zone .uz-icon { font-size: 28px; margin-bottom: 8px; }
-.upload-zone p { font-size: 12px; color: var(--muted); }
-.upload-zone strong { color: var(--acc); }
-.modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; align-items: center; justify-content: center; }
-.modal-bg.open { display: flex; }
-.modal { background: var(--surface); border-radius: var(--radius-lg); padding: 24px; width: 480px; max-width: 95vw; max-height: 90vh; overflow-y: auto; }
-.modal-title { font-size: 15px; font-weight: 500; margin-bottom: 16px; }
-.modal-close { float: right; cursor: pointer; color: var(--muted); font-size: 18px; line-height: 1; }
-.report-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 0.5px solid var(--border); }
-.total-box { background: var(--acc-l); border: 0.5px solid var(--acc-m); border-radius: var(--radius-lg); padding: 20px; text-align: center; margin-bottom: 16px; }
-.total-amount { font-size: 36px; font-weight: 600; color: #0C447C; }
-.total-label { font-size: 12px; color: var(--acc); margin-top: 3px; }
-.breakdown { display: flex; gap: 10px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
-.bk { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 8px 16px; text-align: center; }
-.bk-n { font-size: 16px; font-weight: 500; }
-.bk-l { font-size: 10px; color: var(--muted); margin-top: 1px; }
-.arca-box { background: var(--suc-l); border: 0.5px solid #639922; border-radius: var(--radius); padding: 12px 14px; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
-.arca-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--suc); flex-shrink: 0; }
-.arca-info { flex: 1; font-size: 12px; color: var(--suc); }
-.arca-info small { display: block; font-size: 10px; margin-top: 1px; }
-.progress-bar { background: var(--surface2); border-radius: 99px; height: 5px; overflow: hidden; }
-.progress-fill { height: 100%; background: var(--acc); border-radius: 99px; transition: width 0.3s; }
-.drive-tree { font-size: 12px; line-height: 2; }
-.empty { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 13px; }
-.empty-icon { font-size: 32px; margin-bottom: 10px; }
-.plazo-ok { color: var(--suc); font-weight: 500; }
-.plazo-war { color: var(--war); font-weight: 500; }
-.plazo-dan { color: var(--dan); font-weight: 500; }
-input[type="file"] { display: none; }
-/* CONCEPTO HIGHLIGHT ??? campo predeterminado */
-.concepto-pre { background: var(--acc-l); border-color: var(--acc-m); }
-.concepto-pre-hint { font-size: 10px; color: var(--acc); margin-top: 3px; }
-::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
-.flex-row { display: flex; gap: 12px; }
-.flex-row > * { flex: 1; }
-@media (max-width: 700px) {
-  .sidebar { display: none; }
-  .metrics { grid-template-columns: repeat(2, 1fr); }
-  .form-grid { grid-template-columns: 1fr; }
-  .flex-row { flex-direction: column; }
-}
-@media print {
-  .sidebar, .topbar, .tabs, .btn, .btn-row { display: none !important; }
-  .content { padding: 0; }
-}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh}
+
+/* ── LOGIN ── */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#EEF3FC 0%,#F7F6F3 60%)}
+.login-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:44px 40px;width:380px;box-shadow:0 4px 24px rgba(0,0,0,.08)}
+.login-logo{font-size:22px;font-weight:600;color:var(--acc);letter-spacing:-.3px}
+.login-sub{font-size:12px;color:var(--muted);margin-top:2px;margin-bottom:32px}
+.login-card h2{font-size:16px;font-weight:500;margin-bottom:20px}
+
+/* ── APP ── */
+.app{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:230px;min-width:230px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column}
+.sidebar-logo{padding:20px 16px 16px;border-bottom:1px solid var(--border)}
+.sidebar-logo-name{font-size:15px;font-weight:600;color:var(--acc)}
+.sidebar-logo-sub{font-size:11px;color:var(--muted);margin-top:1px}
+.sidebar-search{padding:10px 12px;border-bottom:1px solid var(--border)}
+.client-list{flex:1;overflow-y:auto;padding:6px}
+.client-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--r);cursor:pointer;transition:background .12s}
+.client-item:hover{background:var(--surface2)}
+.client-item.active{background:var(--acc-l)}
+.client-name{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.client-cuit{font-size:10px;color:var(--muted);margin-top:1px}
+.sidebar-footer{padding:10px 14px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.sidebar-user{font-size:12px;font-weight:500}
+.sidebar-user-sub{font-size:10px;color:var(--muted)}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{padding:14px 20px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.topbar-title{font-size:14px;font-weight:500}
+.topbar-sub{font-size:11px;color:var(--muted)}
+.content{flex:1;overflow-y:auto;padding:20px}
+
+/* ── FORMS ── */
+label{display:block;font-size:11px;color:var(--muted);margin-bottom:3px;margin-top:10px}
+label:first-child{margin-top:0}
+input,select,textarea{width:100%;padding:8px 10px;border-radius:var(--r);border:1px solid var(--border2);background:var(--surface);color:var(--text);font-size:13px;font-family:inherit;transition:border-color .12s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--acc-m)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* ── BUTTONS ── */
+.btn{padding:7px 16px;border-radius:var(--r);border:1px solid var(--border2);background:var(--surface);color:var(--text);font-size:12px;cursor:pointer;font-family:inherit;transition:background .12s;white-space:nowrap}
+.btn:hover{background:var(--surface2)}
+.btn-primary{background:var(--acc);color:#fff;border-color:var(--acc)}
+.btn-primary:hover{background:#0D4A9E}
+.btn-danger{background:var(--dan-l);color:var(--dan);border-color:#E8A0A0}
+.btn-success{background:var(--suc-l);color:var(--suc);border-color:#80C060}
+.btn-sm{padding:4px 11px;font-size:11px}
+.btn-row{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* ── TABS ── */
+.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:18px;background:var(--surface);border-radius:var(--r-lg) var(--r-lg) 0 0;padding:0 4px}
+.tab{padding:10px 16px;font-size:12px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .12s;white-space:nowrap}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--acc);border-bottom-color:var(--acc);font-weight:500}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* ── CARDS ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px;margin-bottom:14px}
+.card-title{font-size:13px;font-weight:500;margin-bottom:12px}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.metric{background:var(--surface);border-radius:var(--r);padding:14px;border:1px solid var(--border)}
+.metric-n{font-size:24px;font-weight:500}
+.metric-l{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* ── TABLE ── */
+.table-wrap{border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:14px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:var(--surface2);padding:9px 12px;text-align:left;font-weight:500;color:var(--muted);font-size:11px;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:9px 12px;border-bottom:1px solid var(--border);color:var(--text)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface2)}
+
+/* ── BADGES ── */
+.badge{display:inline-block;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:500}
+.b-ok{background:var(--suc-l);color:var(--suc)}
+.b-war{background:var(--war-l);color:var(--war)}
+.b-dan{background:var(--dan-l);color:var(--dan)}
+.b-inf{background:var(--acc-l);color:var(--acc)}
+.b-gray{background:var(--surface2);color:var(--muted)}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.dot-ok{background:#4CAF50}.dot-war{background:#FF9800}.dot-dan{background:#E53935}
+.av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0}
+.av-lg{width:42px;height:42px;font-size:14px}
+.av-blue{background:#E8F0FC;color:#1A5FB4}
+.av-teal{background:#E0F5EE;color:#1A6B4A}
+.av-amber{background:#FFF0D6;color:#7A4500}
+.av-coral{background:#FAEDE8;color:#7A2B13}
+.av-purple{background:#EEEDFC;color:#3C3480}
+
+/* ── ALERTS ── */
+.alert{border-radius:var(--r);padding:11px 14px;font-size:12px;margin-bottom:14px;display:flex;gap:8px;align-items:flex-start;line-height:1.5}
+.alert-info{background:var(--acc-l);color:var(--acc);border:1px solid #A0BEF0}
+.alert-ok{background:var(--suc-l);color:var(--suc);border:1px solid #80C060}
+.alert-war{background:var(--war-l);color:var(--war);border:1px solid #E0A040}
+.alert-dan{background:var(--dan-l);color:var(--dan);border:1px solid #E06060}
+
+/* ── PROGRESS ── */
+.progress-wrap{margin:14px 0}
+.progress-label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:6px}
+.progress-bar{background:var(--surface2);border-radius:99px;height:8px;overflow:hidden}
+.progress-fill{height:100%;border-radius:99px;transition:width .5s}
+.progress-ok{background:var(--acc)}
+.progress-war{background:#FF9800}
+.progress-dan{background:#E53935}
+
+/* ── UPLOAD ── */
+.upload-zone{border:2px dashed var(--border2);border-radius:var(--r);padding:24px;text-align:center;cursor:pointer;background:var(--surface2);transition:all .15s}
+.upload-zone:hover{border-color:var(--acc-m);background:var(--acc-l)}
+.upload-zone .uz-icon{font-size:28px;margin-bottom:8px}
+.upload-zone p{font-size:12px;color:var(--muted)}
+input[type="file"]{display:none}
+
+/* ── MODAL ── */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:var(--surface);border-radius:var(--r-lg);padding:26px;width:500px;max-width:95vw;max-height:90vh;overflow-y:auto}
+.modal-title{font-size:15px;font-weight:500;margin-bottom:16px}
+.modal-close{float:right;cursor:pointer;color:var(--muted);font-size:18px;line-height:1}
+
+/* ── PAGO CARD ── */
+.pago-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px;margin-bottom:10px;display:flex;gap:14px;align-items:flex-start}
+.pago-info{flex:1}
+.pago-remitente{font-size:13px;font-weight:500}
+.pago-detalle{font-size:11px;color:var(--muted);margin-top:3px}
+.pago-importe{font-size:18px;font-weight:600;color:var(--text);white-space:nowrap}
+.pago-origen{font-size:10px;font-weight:500;padding:2px 8px;border-radius:99px;display:inline-block;margin-top:4px}
+.origen-mp{background:#F0F8FF;color:#009EE3}
+.origen-lemon{background:#FFF8E8;color:#FFB800}
+
+.empty{text-align:center;padding:40px 20px;color:var(--muted)}
+.empty-icon{font-size:32px;margin-bottom:10px}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px}
 </style>
 </head>
 <body>
 
-
-<script>
-// Semilla de facturas ya emitidas (para evitar duplicados)
-(function() {
-  var clientId = 'c1';
-  var key = 'historial_' + clientId;
-  try {
-    var existing = localStorage.getItem(key);
-    if (!existing || JSON.parse(existing).length === 0) {
-      var yaEmitidas = [
-        { id: 'hist_1', fecha: '17/04/2026', importe: 269000, cae: '86184179409172', estado: 'emitida', concepto: 'Servicio de reparacion' },
-        { id: 'hist_2', fecha: '30/04/2026', importe: 68000,  cae: 'emitida-anterior', estado: 'emitida', concepto: 'Servicio de reparacion' }
-      ];
-      localStorage.setItem(key, JSON.stringify(yaEmitidas));
-      console.log('[FacturAR] Historial inicializado con', yaEmitidas.length, 'facturas ya emitidas');
-    }
-  } catch(e) {}
-})();
-
-function guardarCola() {
-  try {
-    localStorage.setItem('cola_' + state.currentClientId, JSON.stringify(colaFacturas));
-  } catch(e) {}
-}
-
-function cargarCola(clientId) {
-  try {
-    var raw = localStorage.getItem('cola_' + clientId);
-    return raw ? JSON.parse(raw) : [];
-  } catch(e) { return []; }
-}
-
-function eliminarDeCola(facturaId) {
-  colaFacturas = colaFacturas.filter(function(f) { return f.id !== facturaId; });
-  guardarCola();
-  renderCola();
-}
-
-
-function renderTabFacturas() {
-  var tabla = document.getElementById('facturas-tabla');
-  if (!tabla) return;
-  var client = getClient();
-  if (!client) return;
-
-  // Combinar facturas del estado + historial localStorage
-  var historial = getHistorial(state.currentClientId);
-  var todasMap  = {};
-
-  // Primero las del estado del cliente
-  (client.facturas || []).forEach(function(f) {
-    todasMap[f.id] = f;
-  });
-  // Luego las del historial (pueden tener CAE real)
-  historial.forEach(function(f) {
-    todasMap[f.id] = f;
-  });
-
-  var todas = Object.values(todasMap).sort(function(a, b) {
-    return (b.fecha || '').localeCompare(a.fecha || '');
-  });
-
-  if (todas.length === 0) {
-    tabla.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#888;padding:20px">No hay facturas emitidas aun</td></tr>';
-    return;
-  }
-
-  tabla.innerHTML = todas.map(function(f) {
-    return '<tr>' +
-      '<td style="font-size:12px">' + (f.fecha || '') + '</td>' +
-      '<td style="font-size:11px;color:#666">' + (f.nro || '-') + '</td>' +
-      '<td style="font-size:12px">' + (f.concepto || '') + '</td>' +
-      '<td style="font-size:12px">' + (f.receptor_nombre || '-') + '</td>' +
-      '<td style="font-size:12px;font-weight:500">$' + ((f.importe || 0).toLocaleString('es-AR')) + '</td>' +
-      '<td style="font-size:11px">' +
-        (f.cae && f.cae !== 'emitida-anterior'
-          ? '<span style="color:#3B6D11;font-weight:500">CAE: ' + f.cae + '</span>'
-          : '<span style="color:#888">Emitida</span>') +
-      '</td>' +
-      '</tr>';
-  }).join('');
-}
-
-</script>
-
-<!-- LOGIN -->
+<!-- ── LOGIN ── -->
 <div class="login-wrap" id="login-screen">
   <div class="login-card">
     <div class="login-logo">FacturAR Pro</div>
-    <div class="login-sub">Panel de gesti??n contable</div>
-    <h2>Iniciar sesi??n</h2>
-    <label>Usuario</label>
-    <input type="text" id="login-user" placeholder="tu@email.com" value="contadora@demo.com" />
-    <label>Contrase??a</label>
-    <input type="password" id="login-pass" placeholder="????????????????????????" value="demo1234" />
+    <div class="login-sub">Sistema de facturación electrónica</div>
+    <h2>Iniciar sesión</h2>
+    <label>Email</label>
+    <input type="email" id="login-email" placeholder="tu@email.com"/>
+    <label>Contraseña</label>
+    <input type="password" id="login-pass" placeholder="••••••••"/>
+    <div id="login-error" style="color:var(--dan);font-size:12px;margin-top:8px;display:none"></div>
     <div style="margin-top:18px">
       <button class="btn btn-primary" style="width:100%;padding:10px" onclick="doLogin()">Entrar</button>
     </div>
-    <div class="alert alert-info" style="margin-top:14px;margin-bottom:0;font-size:11px">
-      Demo: usuario <strong>contadora@demo.com</strong> / contrase??a <strong>demo1234</strong>
-    </div>
   </div>
 </div>
 
-<!-- APP PRINCIPAL -->
-<div class="app" id="app-screen" style="display:none">
+<!-- ── APP ADMIN ── -->
+<div class="app" id="admin-screen" style="display:none">
   <aside class="sidebar">
     <div class="sidebar-logo">
       <div class="sidebar-logo-name">FacturAR Pro</div>
-      <div class="sidebar-logo-sub">Panel de contadora</div>
+      <div class="sidebar-logo-sub">Panel de administración</div>
     </div>
     <div class="sidebar-search">
-      <input type="text" placeholder="Buscar cliente..." oninput="filterClients(this.value)" style="font-size:12px" />
+      <input type="text" placeholder="Buscar cliente..." oninput="filtrarAdminClientes(this.value)" style="font-size:12px"/>
     </div>
-    <div class="client-list" id="client-list"></div>
+    <div class="client-list" id="admin-client-list"></div>
     <div class="sidebar-footer">
       <div>
-        <div class="sidebar-user">Dra. Garc??a</div>
+        <div class="sidebar-user" id="admin-user-name">—</div>
         <div class="sidebar-user-sub">Administradora</div>
       </div>
-      <button class="btn btn-sm" onclick="openModal('modal-nuevo-cliente')">+ Cliente</button>
+      <button class="btn btn-sm" onclick="doLogout()">Salir</button>
     </div>
   </aside>
-
   <main class="main">
     <div class="topbar">
-      <div class="topbar-left">
-        <div class="av av-lg" id="hdr-av">MJ</div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="av av-lg av-blue" id="admin-hdr-av">—</div>
         <div>
-          <div class="topbar-title" id="hdr-name">Seleccion?? un cliente</div>
-          <div class="topbar-sub" id="hdr-cuit">???</div>
+          <div class="topbar-title" id="admin-hdr-name">Seleccioná un cliente</div>
+          <div class="topbar-sub" id="admin-hdr-sub">—</div>
         </div>
       </div>
-      <div style="display:flex;gap:8px;align-items:center">
-        <span class="badge b-gray" id="hdr-badge">???</span>
-        <button class="btn btn-primary btn-sm" onclick="showTab('cargar')">+ Cargar comprobantes</button>
-        <button class="btn btn-sm" onclick="doLogout()">Salir</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-sm" onclick="openModal('modal-monotributo')">📊 Actualizar monotributo</button>
+        <span class="badge b-inf" id="admin-mes-badge">—</span>
       </div>
     </div>
-
-    <div class="content" id="main-content">
-      <div class="empty" id="placeholder">
-        <div class="empty-icon">???</div>
-        <div>Seleccion?? un cliente del men?? para comenzar</div>
+    <div class="content" id="admin-content">
+      <div class="empty" id="admin-placeholder">
+        <div class="empty-icon">👈</div>
+        <div>Seleccioná un cliente para ver su actividad</div>
       </div>
-
-      <div id="client-panel" style="display:none">
-        <div class="tabs" id="main-tabs">
-          <div class="tab active" onclick="showTab('resumen')">Resumen</div>
-          <div class="tab" onclick="showTab('cargar')">Cargar</div>
-          <div class="tab" onclick="showTab('facturas'); renderTabFacturas();">Facturas</div>
-          <div class="tab" onclick="showTab('reporte')">Reporte mensual</div>
-          <div class="tab" onclick="showTab('arca')">ARCA</div>
-          <div class="tab" onclick="showTab('drive')">Drive</div>
-          <div class="tab" onclick="showTab('config')">Configuraci??n</div>
+      <div id="admin-panel" style="display:none">
+        <div class="metrics" id="admin-metrics"></div>
+        <div class="tabs">
+          <div class="tab active" onclick="showAdminTab('actividad')">Actividad del mes</div>
+          <div class="tab" onclick="showAdminTab('facturas')">Facturas</div>
+          <div class="tab" onclick="showAdminTab('config')">Configuración</div>
         </div>
-
-        <!-- RESUMEN -->
-        <div id="tp-resumen" class="tab-panel active">
-          <div class="metrics" id="resumen-metrics"></div>
-          <div id="resumen-alert"></div>
-          <div class="card">
-            <div class="card-title">??ltimas facturas</div>
-            <div class="table-wrap" style="margin-bottom:0">
-              <table>
-                <thead><tr><th>Fecha</th><th>Nro.</th><th>Concepto</th><th>Importe</th><th>Plazo</th><th>Estado</th><th></th></tr></thead>
-                <tbody id="resumen-tabla"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <!-- CARGAR -->
-        <div id="tp-cargar" class="tab-panel">
-          <!-- NUEVO: aviso concepto predeterminado -->
-          <div id="concepto-aviso" class="alert alert-info" style="margin-bottom:12px"></div>
-          <div class="flex-row" style="margin-bottom:16px">
-            <div>
-              <div class="card-title">Cargar im??genes de comprobantes</div>
-              <div class="upload-zone" onclick="document.getElementById('file-img').click()">
-                <div class="uz-icon">????</div>
-                <p><strong>Hacer click aqu??</strong> para seleccionar fotos</p>
-                <p style="margin-top:4px">JPG, PNG, HEIC ?? varias a la vez</p>
-              </div>
-              <input type="file" id="file-img" multiple accept="image/*" onchange="handleImages(this.files)" />
-              <div class="card-title" style="margin-top:16px">Cargar Excel / CSV del banco o billetera</div>
-              <div class="upload-zone" onclick="document.getElementById('file-excel').click()">
-                <div class="uz-icon">????</div>
-                <p><strong>Hacer click aqu??</strong> para seleccionar el archivo</p>
-                <p style="margin-top:4px">.xlsx, .xls, .csv</p>
-              </div>
-              <input type="file" id="file-excel" accept=".xlsx,.xls,.csv" onchange="handleExcel(this.files[0])" />
-            </div>
-            <div>
-              <div class="card-title">Vista previa</div>
-              <div id="preview-box">
-                <div class="empty" style="padding:20px">
-                  <div>Carg?? un archivo para ver los datos extra??dos</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div id="cola-carga" style="display:none">
-            <div class="card-title">Comprobantes detectados ??? revis?? y confirm??</div>
-            <div class="alert alert-info" style="margin-bottom:10px;font-size:11px">
-              El concepto viene del predeterminado del cliente. Pod??s modificarlo antes de emitir.
-            </div>
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>Fecha</th><th>Concepto</th><th>Tipo</th><th>Importe</th><th>Plazo vence</th><th>Estado</th><th></th></tr></thead>
-                <tbody id="cola-tabla"></tbody>
-              </table>
-            </div>
-            <div class="btn-row">
-              <button class="btn btn-sm" onclick="clearCola()">Limpiar</button>
-              <button class="btn btn-primary btn-sm" onclick="emitirTodos()">Emitir todos sin duplicados ???</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- FACTURAS -->
-        <div id="tp-facturas" class="tab-panel">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
-            <div style="display:flex;gap:8px;flex-wrap:wrap">
-              <select id="filter-mes" onchange="renderFacturasTab()" style="width:auto;font-size:12px">
-                <option value="">Todos los meses</option>
-              </select>
-              <select id="filter-estado" onchange="renderFacturasTab()" style="width:auto;font-size:12px">
-                <option value="">Todos los estados</option>
-                <option value="emitida">Emitidas</option>
-                <option value="pendiente">Pendientes</option>
-                <option value="vencida">Vencidas</option>
-              </select>
-            </div>
-            <button class="btn btn-sm" onclick="exportarExcel()">Exportar Excel</button>
-          </div>
+        <div id="adm-actividad" class="tab-panel active">
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Fecha</th><th>Nro. / CAE</th><th>Concepto</th><th>Tipo</th><th>Importe</th><th>Plazo</th><th>Estado</th><th></th></tr></thead>
-              <tbody id="facturas-tabla"></tbody>
+              <thead><tr><th>Fecha</th><th>Concepto</th><th>Receptor</th><th>Importe</th><th>CAE</th></tr></thead>
+              <tbody id="adm-tabla-actividad"></tbody>
             </table>
           </div>
         </div>
-
-        <!-- REPORTE MENSUAL -->
-        <div id="tp-reporte" class="tab-panel">
-          <div class="flex-row" style="margin-bottom:16px;align-items:flex-end">
-            <div>
-              <label>Per??odo</label>
-              <select id="rep-periodo" onchange="buildReporte()" style="width:auto">
-                <option>Abril 2025</option><option>Marzo 2025</option><option>Febrero 2025</option>
-              </select>
-            </div>
-            <div style="flex:0">
-              <button class="btn btn-primary btn-sm" onclick="window.print()">Imprimir / PDF</button>
-            </div>
+        <div id="adm-facturas" class="tab-panel">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Fecha</th><th>Nro</th><th>Concepto</th><th>Receptor</th><th>Importe</th><th>CAE</th></tr></thead>
+              <tbody id="adm-tabla-facturas"></tbody>
+            </table>
           </div>
-          <div id="reporte-body"></div>
         </div>
-
-        <!-- ARCA -->
-        <div id="tp-arca" class="tab-panel">
-          <div id="arca-status-box"></div>
+        <div id="adm-config" class="tab-panel">
           <div class="card">
-            <div class="card-title">Credenciales de acceso delegado</div>
-            <div class="alert alert-info" style="margin-bottom:14px">
-              El cliente te otorga acceso una sola vez desde ARCA ??? "Administraci??n de Relaciones" ??? Agregar relaci??n ??? tu CUIT.
+            <div class="card-title">Control del cliente</div>
+            <div style="display:flex;gap:10px;align-items:center">
+              <span id="adm-estado-badge"></span>
+              <button class="btn btn-sm btn-success" id="adm-btn-activar" onclick="toggleCliente(true)">Activar</button>
+              <button class="btn btn-sm btn-danger" id="adm-btn-desactivar" onclick="toggleCliente(false)">Suspender</button>
             </div>
-            <div class="form-grid">
-              <div><label>CUIT del cliente</label><input type="text" id="arca-cuit" /></div>
-              <div><label>Punto de venta</label><input type="text" id="arca-pv" /></div>
-            </div>
-            <div class="form-grid">
-              <div>
-                <label>Tipo de comprobante habitual</label>
-                <select id="arca-tipo">
-                  <option value="C">Factura C (monotributista)</option>
-                  <option value="A">Factura A (resp. inscripto)</option>
-                  <option value="B">Factura B</option>
-                </select>
-              </div>
-              <div>
-                <label>Concepto habitual</label>
-                <select id="arca-concepto">
-                  <option value="2">Servicios</option>
-                  <option value="1">Productos</option>
-                  <option value="3">Productos y servicios</option>
-                </select>
-              </div>
-            </div>
-            <div style="margin-top:10px">
-              <label>Certificado WSAA (.crt)</label>
-              <div class="upload-zone" style="padding:14px" onclick="document.getElementById('file-cert').click()">
-                <p><strong>Seleccionar certificado</strong> de ARCA (.crt)</p>
-              </div>
-              <input type="file" id="file-cert" accept=".p12,.crt,.pem" onchange="loadCert(this)" />
-              <div id="cert-status" style="font-size:11px;color:var(--muted);margin-top:6px"></div>
-            </div>
-            <div style="margin-top:10px">
-              <label>Clave privada (.key)</label>
-              <div class="upload-zone" style="padding:14px" onclick="document.getElementById('file-key').click()">
-                <p><strong>Seleccionar clave privada</strong> (.key)</p>
-              </div>
-              <input type="file" id="file-key" accept=".key,.pem" onchange="loadKey(this)" />
-              <div id="key-status" style="font-size:11px;color:var(--muted);margin-top:6px"></div>
-            </div>
-            <div class="btn-row">
-              <button class="btn btn-primary btn-sm" onclick="guardarArca()">Guardar y verificar conexi??n</button>
+            <div style="margin-top:14px;font-size:12px;color:var(--muted)">
+              Suspender un cliente le impide emitir nuevas facturas. Sus datos se conservan.
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </main>
+</div>
 
-        <!-- DRIVE -->
-        <div id="tp-drive" class="tab-panel">
-          <div class="alert alert-info">
-            Sin almacenar PDFs: los comprobantes quedan en ARCA. Ac?? pod??s ver el registro de lo que se emiti?? y descargar el reporte.
-          </div>
-          <div class="card">
-            <div class="card-title">Organizaci??n de registros</div>
-            <div class="drive-tree" id="drive-tree"></div>
-          </div>
-          <div class="card">
-            <div class="card-title">Acciones r??pidas</div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap">
-              <button class="btn btn-sm" onclick="showTab('reporte')">Ver reporte mensual</button>
-              <button class="btn btn-sm" onclick="exportarExcel()">Exportar listado Excel</button>
-              <button class="btn btn-sm" onclick="window.print()">Imprimir resumen</button>
+<!-- ── APP CLIENTE ── -->
+<div class="app" id="cliente-screen" style="display:none">
+  <main class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="av av-lg av-teal" id="cli-av">—</div>
+        <div>
+          <div class="topbar-title" id="cli-nombre">—</div>
+          <div class="topbar-sub" id="cli-cuit-txt">—</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="badge" id="cli-monotributo-badge"></span>
+        <button class="btn btn-sm" onclick="doLogout()">Salir</button>
+      </div>
+    </div>
+    <div class="content">
+      <div id="cli-alerta-monotributo"></div>
+      <div class="tabs" id="cli-tabs">
+        <div class="tab active" onclick="showCliTab('pagos')">💳 Pagos pendientes <span id="cli-badge-pagos" class="badge b-war" style="margin-left:4px;display:none"></span></div>
+        <div class="tab" onclick="showCliTab('facturas')">📄 Mis facturas</div>
+        <div class="tab" onclick="showCliTab('monotributo')">📊 Monotributo</div>
+        <div class="tab" onclick="showCliTab('config')">⚙ Configuración</div>
+      </div>
+
+      <!-- PAGOS PENDIENTES -->
+      <div id="cli-pagos" class="tab-panel active">
+        <div class="alert alert-info" style="margin-bottom:14px;font-size:12px">
+          Estos son los pagos recibidos en Mercado Pago y Lemon. Aprobá los que correspondan facturar.
+        </div>
+        <div id="pagos-lista"></div>
+      </div>
+
+      <!-- FACTURAS -->
+      <div id="cli-facturas" class="tab-panel">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Fecha</th><th>Nro</th><th>Concepto</th><th>Receptor</th><th>Importe</th><th>CAE</th></tr></thead>
+            <tbody id="cli-tabla-facturas"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- MONOTRIBUTO -->
+      <div id="cli-monotributo" class="tab-panel">
+        <div class="card">
+          <div class="card-title" id="mono-titulo">Progreso anual — Categoría A</div>
+          <div class="progress-wrap">
+            <div class="progress-label">
+              <span id="mono-total">$0 facturados</span>
+              <span id="mono-limite">Límite: $0</span>
             </div>
+            <div class="progress-bar">
+              <div class="progress-fill progress-ok" id="mono-barra" style="width:0%"></div>
+            </div>
+            <div style="margin-top:8px;font-size:12px;color:var(--muted)" id="mono-detalle"></div>
           </div>
         </div>
+      </div>
 
-        <!-- CONFIGURACION -->
-        <div id="tp-config" class="tab-panel">
-          <div class="card">
-            <div class="card-title">Datos del cliente</div>
-            <div class="form-grid">
-              <div><label>Nombre / Raz??n social</label><input type="text" id="cfg-nombre" /></div>
-              <div><label>CUIT</label><input type="text" id="cfg-cuit" /></div>
-            </div>
-            <div class="form-grid">
-              <div>
-                <label>Condici??n fiscal</label>
-                <select id="cfg-condicion">
-                  <option>Monotributista</option>
-                  <option>Responsable Inscripto</option>
-                  <option>Exento</option>
-                </select>
-              </div>
-              <div><label>Categor??a monotributo</label><input type="text" id="cfg-categoria" placeholder="A, B, C... H" /></div>
-            </div>
-            <div><label>Email del cliente (para reportes)</label><input type="email" id="cfg-email" /></div>
+      <!-- CONFIGURACIÓN -->
+      <div id="cli-config" class="tab-panel">
+        <div class="card">
+          <div class="card-title">Certificado ARCA</div>
+          <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Subí los archivos una sola vez. Quedan guardados de forma segura.</p>
+          <label>CUIT (sin guiones)</label>
+          <input type="text" id="cfg-cuit" placeholder="20123456789"/>
+          <label>Archivo privada.key</label>
+          <div class="upload-zone" onclick="document.getElementById('file-key').click()">
+            <div class="uz-icon">🔑</div>
+            <p id="key-label">Seleccionar <strong>privada.key</strong></p>
           </div>
-
-          <!-- NUEVO: Concepto predeterminado -->
-          <div class="card">
-            <div class="card-title">Concepto predeterminado para facturas</div>
-            <div class="alert alert-info" style="margin-bottom:12px;font-size:11px">
-              Este concepto se autocompleta en todas las facturas de este cliente. Pod??s cambiarlo factura por factura si es necesario.
-            </div>
-            <div>
-              <label>Concepto que aparece en la factura</label>
-              <input type="text" id="cfg-concepto-default" placeholder="ej: Servicios profesionales" oninput="updateConceptoPreview()" />
-            </div>
-            <div style="margin-top:8px;display:flex;align-items:center;gap:8px">
-              <input type="checkbox" id="cfg-concepto-mes" style="width:auto" onchange="updateConceptoPreview()" />
-              <label style="margin:0;font-size:12px;color:var(--text)">Agregar "??? [Mes A??o]" autom??ticamente al final</label>
-            </div>
-            <div id="concepto-preview" style="margin-top:10px;padding:8px 12px;background:var(--surface2);border-radius:var(--radius);font-size:12px;color:var(--muted)">
-              Vista previa: ???
-            </div>
-            <div style="margin-top:10px">
-              <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Sugerencias r??pidas:</div>
-              <div style="display:flex;flex-wrap:wrap;gap:6px">
-                <button class="btn btn-sm" onclick="setConceptoSugerido('Servicios profesionales')">Servicios profesionales</button>
-                <button class="btn btn-sm" onclick="setConceptoSugerido('Locaci??n de servicios')">Locaci??n de servicios</button>
-                <button class="btn btn-sm" onclick="setConceptoSugerido('Honorarios profesionales')">Honorarios profesionales</button>
-                <button class="btn btn-sm" onclick="setConceptoSugerido('Venta de mercader??a')">Venta de mercader??a</button>
-                <button class="btn btn-sm" onclick="setConceptoSugerido('Servicios de dise??o gr??fico')">Dise??o gr??fico</button>
-                <button class="btn btn-sm" onclick="setConceptoSugerido('Desarrollo de software')">Desarrollo de software</button>
-                <button class="btn btn-sm" onclick="setConceptoSugerido('Servicios de marketing digital')">Marketing digital</button>
-                <button class="btn btn-sm" onclick="setConceptoSugerido('Consultor??a')">Consultor??a</button>
-              </div>
-            </div>
+          <input type="file" id="file-key" accept=".key" onchange="setFileLabel('key-label',this,'privada.key')"/>
+          <label>Archivo certificado.crt</label>
+          <div class="upload-zone" onclick="document.getElementById('file-cert').click()">
+            <div class="uz-icon">📜</div>
+            <p id="cert-label">Seleccionar <strong>certificado.crt</strong></p>
           </div>
-
-          <div class="card">
-            <div class="card-title">Tarifas ??? honorarios</div>
-            <div class="form-grid">
-              <div><label>Base mensual ($)</label><input type="number" id="cfg-base" oninput="updateTarifaPreview()" /></div>
-              <div><label>Facturas incluidas en la base</label><input type="number" id="cfg-incl" oninput="updateTarifaPreview()" /></div>
-            </div>
-            <div class="form-grid">
-              <div><label>Excedente por factura adicional ($)</label><input type="number" id="cfg-extra" oninput="updateTarifaPreview()" /></div>
-              <div>
-                <label>Descuento excedente alto volumen</label>
-                <select id="cfg-desc" onchange="updateTarifaPreview()">
-                  <option value="0">Sin descuento</option>
-                  <option value="10">10% a partir de fact. 21</option>
-                  <option value="20" selected>20% a partir de fact. 21</option>
-                  <option value="30">30% a partir de fact. 21</option>
-                </select>
-              </div>
-            </div>
-            <div id="tarifa-preview" class="alert alert-info" style="margin-top:10px;margin-bottom:0"></div>
+          <input type="file" id="file-cert" accept=".crt" onchange="setFileLabel('cert-label',this,'certificado.crt')"/>
+          <div class="btn-row">
+            <button class="btn btn-primary" onclick="subirCertificado()">Guardar certificado</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Configuración de facturación</div>
+          <label>Concepto predeterminado</label>
+          <input type="text" id="cfg-concepto" placeholder="Servicios profesionales"/>
+          <label>Punto de venta (número)</label>
+          <input type="text" id="cfg-pv" placeholder="2" style="width:80px"/>
+          <label>Categoría monotributo</label>
+          <select id="cfg-categoria">
+            <option>A</option><option>B</option><option>C</option><option>D</option>
+            <option>E</option><option>F</option><option>G</option><option>H</option>
+            <option>I</option><option>J</option><option>K</option>
+          </select>
+          <label>Tipo de actividad</label>
+          <select id="cfg-actividad">
+            <option value="servicios">Servicios</option>
+            <option value="bienes">Venta de bienes</option>
+          </select>
+          <label>Facturación antes de usar la app este año ($)</label>
+          <input type="number" id="cfg-historial" placeholder="0"/>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px">
+            Ingresá el total ya facturado este año antes de empezar a usar FacturAR Pro.
           </div>
           <div class="btn-row">
-            <button class="btn btn-danger btn-sm" onclick="eliminarCliente()">Eliminar cliente</button>
-            <button class="btn btn-primary btn-sm" onclick="guardarConfig()">Guardar cambios</button>
+            <button class="btn btn-primary" onclick="guardarConfigCliente()">Guardar cambios</button>
           </div>
         </div>
-
-      </div><!-- /client-panel -->
-    </div><!-- /content -->
+      </div>
+    </div>
   </main>
-</div><!-- /app -->
+</div>
 
-<!-- MODAL: NUEVO CLIENTE -->
-<div class="modal-bg" id="modal-nuevo-cliente">
+<!-- MODAL APROBAR PAGO -->
+<div class="modal-bg" id="modal-aprobar">
   <div class="modal">
-    <div class="modal-title">Nuevo cliente <span class="modal-close" onclick="closeModal('modal-nuevo-cliente')">???</span></div>
-    <div class="form-grid">
-      <div><label>Nombre / Raz??n social</label><input type="text" id="nc-nombre" placeholder="Garc??a, Ana" /></div>
-      <div><label>CUIT</label><input type="text" id="nc-cuit" placeholder="27-31234567-3" /></div>
-    </div>
-    <div class="form-grid">
-      <div>
-        <label>Condici??n fiscal</label>
-        <select id="nc-condicion">
-          <option>Monotributista</option>
-          <option>Responsable Inscripto</option>
-          <option>Exento</option>
-        </select>
-      </div>
-      <div><label>Categor??a</label><input type="text" id="nc-categoria" placeholder="H" /></div>
-    </div>
-    <div><label>Email</label><input type="email" id="nc-email" placeholder="cliente@email.com" /></div>
-    <!-- NUEVO: concepto predeterminado en alta -->
-    <div style="margin-top:12px">
-      <label>Concepto predeterminado para facturas</label>
-      <input type="text" id="nc-concepto" placeholder="ej: Servicios profesionales" />
-      <div style="font-size:10px;color:var(--muted);margin-top:3px">Se autocompleta en cada factura. Pod??s cambiarlo en Configuraci??n.</div>
-    </div>
-    <hr style="border:none;border-top:0.5px solid var(--border);margin:16px 0" />
-    <div style="font-size:12px;font-weight:500;margin-bottom:10px;color:var(--muted)">Honorarios</div>
-    <div class="form-grid">
-      <div><label>Base mensual ($)</label><input type="number" id="nc-base" value="8000" /></div>
-      <div><label>Incluye (facturas)</label><input type="number" id="nc-incl" value="10" /></div>
-    </div>
-    <div><label>Excedente por factura adicional ($)</label><input type="number" id="nc-extra" value="500" /></div>
+    <div class="modal-title">Confirmar factura <span class="modal-close" onclick="closeModal('modal-aprobar')">✕</span></div>
+    <div id="modal-aprobar-info" style="background:var(--surface2);border-radius:var(--r);padding:12px;margin-bottom:14px;font-size:13px"></div>
+    <label>Concepto de la factura</label>
+    <input type="text" id="aprobar-concepto" placeholder="Servicios profesionales"/>
     <div class="btn-row">
-      <button class="btn btn-sm" onclick="closeModal('modal-nuevo-cliente')">Cancelar</button>
-      <button class="btn btn-primary btn-sm" onclick="agregarCliente()">Agregar cliente</button>
+      <button class="btn" onclick="closeModal('modal-aprobar')">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmarAprobacion()">✓ Emitir factura</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL: EDITAR FACTURA -->
-<div class="modal-bg" id="modal-factura">
+<!-- MODAL MONOTRIBUTO ADMIN -->
+<div class="modal-bg" id="modal-monotributo">
   <div class="modal">
-    <div class="modal-title">Editar comprobante <span class="modal-close" onclick="closeModal('modal-factura')">???</span></div>
-    <div class="form-grid">
-      <div><label>Fecha del comprobante</label><input type="date" id="mf-fecha" /></div>
-      <div>
-        <label>Tipo</label>
-        <select id="mf-tipo">
-          <option value="servicio">Servicio</option>
-          <option value="bien">Venta de bien</option>
-        </select>
-      </div>
+    <div class="modal-title">Actualizar tabla de monotributo <span class="modal-close" onclick="closeModal('modal-monotributo')">✕</span></div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:14px">
+      Subí una imagen o PDF de la tabla de categorías actualizada. La IA extrae los límites automáticamente.
+    </p>
+    <div class="upload-zone" onclick="document.getElementById('file-mono').click()">
+      <div class="uz-icon">📊</div>
+      <p id="mono-file-label">Seleccionar imagen o PDF de la tabla</p>
     </div>
-    <div><label>Concepto / Descripci??n</label><input type="text" id="mf-concepto" /></div>
-    <div class="form-grid">
-      <div><label>Importe ($)</label><input type="number" id="mf-importe" /></div>
-      <div>
-        <label>Comprobante ARCA</label>
-        <select id="mf-comprobante">
-          <option value="C">Factura C</option>
-          <option value="A">Factura A</option>
-          <option value="B">Factura B</option>
-        </select>
-      </div>
-    </div>
-    <div id="mf-plazo-info" class="alert alert-info" style="margin-top:10px;margin-bottom:0;font-size:11px"></div>
+    <input type="file" id="file-mono" accept="image/*,.pdf" onchange="setFileLabel('mono-file-label',this,'tabla seleccionada')"/>
+    <div id="mono-resultado" style="margin-top:12px;display:none"></div>
     <div class="btn-row">
-      <button class="btn btn-sm" onclick="closeModal('modal-factura')">Cancelar</button>
-      <button class="btn btn-primary btn-sm" onclick="guardarFacturaModal()">Guardar</button>
+      <button class="btn" onclick="closeModal('modal-monotributo')">Cancelar</button>
+      <button class="btn btn-primary" onclick="actualizarMonotributo()">Actualizar</button>
     </div>
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-let colaFacturas = [];
+// ── CONFIGURACIÓN ──────────────────────────────────────────────────────────
+const SUPABASE_URL  = 'TU_SUPABASE_URL';
+const SUPABASE_ANON = 'TU_SUPABASE_ANON_KEY';
+const BACKEND_URL   = 'TU_RENDER_URL';  // ej: https://facturar-pro-backend.onrender.com
+const ADMIN_EMAIL   = 'contadora@elassad.com';
 
-// ?????? ESTADO GLOBAL ??????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 const AV_COLORS = ['av-blue','av-teal','av-amber','av-coral','av-purple'];
+let currentSession = null;
+let adminClientes  = [];
+let adminClienteSel = null;
+let pagoParaAprobar = null;
 
-let state = {
-  currentClientId: null,
-  editingFacturaIdx: null,
-  clients: [
-      {
-        id: 'c1', nombre: 'Gonzalez Lara, Danilo', cuit: '20-28424864-4',
-        condicion: 'Monotributista', categoria: '', email: '',
-        av: 'DG', avColor: 'av-teal',
-        arca: { conectado: false, pv: '0002', tipo: 'C', concepto: '2' },
-        tarifa: { base: 0, incl: 10, extra: 0, desc: 20 },
-        concepto_default: 'Servicio de reparacion',
-        facturas: []
-      }
-    ],
-};
-
-// ?????? HELPERS ????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+// ── HELPERS ────────────────────────────────────────────────────────────────
 const $ = id => document.getElementById(id);
-const fmt = n => '$' + Math.round(n).toLocaleString('es-AR');
-const fmtFecha = s => { if (!s) return '???'; const [y,m,d] = s.split('-'); return `${d}/${m}/${y}`; };
-const today = () => new Date().toISOString().split('T')[0];
+const fmt = n => '$' + Math.round(n||0).toLocaleString('es-AR');
+const fmtFecha = s => { if(!s) return '—'; try { const d=new Date(s+'T12:00:00'); return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()}`; } catch { return s; } };
+const initials = s => s ? s.split(/[\s,]+/).filter(Boolean).map(w=>w[0].toUpperCase()).slice(0,2).join('') : '?';
+const openModal  = id => $(id).classList.add('open');
+const closeModal = id => $(id).classList.remove('open');
 
-// NUEVO: obtener concepto con mes autom??tico
-function getConceptoCliente(c) {
-  if (!c.conceptoDefault && !c.concepto_default) return 'Servicios profesionales';
-  if (!c.conceptoDefault) return c.concepto_default;
-  if (!c.conceptoMesAuto) return c.conceptoDefault;
-  const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-  const d = new Date();
-  return `${c.conceptoDefault} ??? ${meses[d.getMonth()]} ${d.getFullYear()}`;
+async function api(endpoint, method='GET', body=null) {
+  const token = currentSession?.access_token;
+  const opts = { method, headers: { 'Content-Type': 'application/json', ...(token ? {'Authorization': `Bearer ${token}`} : {}) } };
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(BACKEND_URL + endpoint, opts);
+  return r.json();
 }
 
-function diasRestantes(fecha, tipo) {
-  const plazo = tipo === 'bien' ? 5 : 10;
-  const comp = new Date(fecha + 'T12:00:00');
-  const venc = new Date(comp); venc.setDate(comp.getDate() + plazo);
-  const hoy = new Date(); hoy.setHours(0,0,0,0);
-  return Math.ceil((venc - hoy) / 86400000);
+function setFileLabel(labelId, input, fallback) {
+  $(labelId).innerHTML = input.files[0] ? `<strong>${input.files[0].name}</strong> ✓` : fallback;
 }
 
-function plazoHtml(fecha, tipo, estado) {
-  if (estado === 'emitida') return '<span class="badge b-ok">Emitida</span>';
-  const dias = diasRestantes(fecha, tipo);
-  if (dias < 0) return `<span class="badge b-dan">Vencida hace ${Math.abs(dias)}d</span>`;
-  if (dias === 0) return `<span class="badge b-dan">Vence hoy</span>`;
-  if (dias <= 2) return `<span class="badge b-dan">${dias}d</span>`;
-  if (dias <= 4) return `<span class="badge b-war">${dias}d</span>`;
-  return `<span class="badge b-ok">${dias}d</span>`;
-}
-
-function calcHonorario(client, mes) {
-  const [mesStr, anioStr] = mes.split(' ');
-  const meses = {Enero:1,Febrero:2,Marzo:3,Abril:4,Mayo:5,Junio:6,Julio:7,Agosto:8,Septiembre:9,Octubre:10,Noviembre:11,Diciembre:12};
-  const m = meses[mesStr]; const y = parseInt(anioStr);
-  const facts = client.facturas.filter(f => {
-    const fd = new Date(f.fecha + 'T12:00:00');
-    return fd.getMonth()+1 === m && fd.getFullYear() === y && f.estado === 'emitida';
+async function fileToB64(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result.split(',')[1]);
+    r.onerror = rej;
+    r.readAsDataURL(file);
   });
-  const qty = facts.length;
-  const {base, incl, extra, desc} = client.tarifa;
-  const exc = Math.max(0, qty - incl);
-  let excCost = 0;
-  if (exc > 0 && exc <= 10) excCost = exc * extra;
-  else if (exc > 10) excCost = 10 * extra + (exc - 10) * extra * (1 - desc/100);
-  return { qty, facts, totalFact: facts.reduce((a,f)=>a+f.importe,0), base, exc, excCost, total: base + excCost };
 }
 
-function getClient() {
-  return state.clients.find(c => c.id === state.currentClientId);
-}
-
-// ?????? LOGIN ??????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
-function doLogin() {
-  const u = $('login-user').value.trim();
-  const p = $('login-pass').value.trim();
-  if (u === 'contadora@demo.com' && p === 'demo1234') {
-    $('login-screen').style.display = 'none';
-    $('app-screen').style.display = 'flex';
-    renderClientList();
-  } else {
-    alert('Usuario o contrase??a incorrectos.\nDemo: contadora@demo.com / demo1234');
+// ── AUTH ───────────────────────────────────────────────────────────────────
+async function doLogin() {
+  const email = $('login-email').value.trim();
+  const pass  = $('login-pass').value.trim();
+  $('login-error').style.display = 'none';
+  const { data, error } = await supa.auth.signInWithPassword({ email, password: pass });
+  if (error) {
+    $('login-error').textContent = 'Email o contraseña incorrectos';
+    $('login-error').style.display = 'block';
+    return;
   }
+  currentSession = data.session;
+  iniciarApp(data.user.email);
 }
-function doLogout() {
-  $('app-screen').style.display = 'none';
+
+async function doLogout() {
+  await supa.auth.signOut();
+  currentSession = null;
   $('login-screen').style.display = 'flex';
-}
-document.addEventListener('keydown', e => { if (e.key === 'Enter' && $('login-screen').style.display !== 'none') doLogin(); });
-
-// ?????? CLIENTES ?????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
-function renderClientList(filter = '') {
-  const el = $('client-list');
-  el.innerHTML = '';
-  state.clients
-    .filter(c => c.nombre.toLowerCase().includes(filter.toLowerCase()))
-    .forEach(c => {
-      const pend = c.facturas.filter(f => f.estado === 'pendiente').length;
-      const venc = c.facturas.filter(f => f.estado === 'vencida').length;
-      const dotCls = venc > 0 ? 'dot-dan' : pend > 0 ? 'dot-war' : 'dot-ok';
-      const div = document.createElement('div');
-      div.className = 'client-item' + (c.id === state.currentClientId ? ' active' : '');
-      div.innerHTML = `
-        <div class="av ${c.avColor}">${c.av}</div>
-        <div class="client-info">
-          <div class="client-name">${c.nombre}</div>
-          <div class="client-cuit">${c.cuit}</div>
-        </div>
-        <div class="dot ${dotCls}"></div>`;
-      div.onclick = () => selectClient(c.id);
-      el.appendChild(div);
-    });
+  $('admin-screen').style.display = 'none';
+  $('cliente-screen').style.display = 'none';
 }
 
-function filterClients(v) { renderClientList(v); }
-
-function selectClient(id) {
-  state.currentClientId = id;
-  const c = getClient();
-  $('placeholder').style.display = 'none';
-  $('client-panel').style.display = 'block';
-  $('hdr-av').className = `av av-lg ${c.avColor}`;
-  $('hdr-av').textContent = c.av;
-  $('hdr-name').textContent = c.nombre;
-  $('hdr-cuit').textContent = `CUIT ${c.cuit} ?? ${c.condicion}${c.categoria ? ' ?? Cat. '+c.categoria : ''}`;
-  const pend = c.facturas.filter(f=>f.estado==='pendiente').length;
-  const venc = c.facturas.filter(f=>f.estado==='vencida').length;
-  const badge = $('hdr-badge');
-  if (venc > 0) { badge.textContent = `${venc} vencida${venc>1?'s':''}`; badge.className = 'badge b-dan'; }
-  else if (pend > 0) { badge.textContent = `${pend} pendiente${pend>1?'s':''}`; badge.className = 'badge b-war'; }
-  else { badge.textContent = 'Al d??a'; badge.className = 'badge b-ok'; }
-  renderClientList();
- showTab('resumen');
-  colaFacturas = cargarCola(id);
-  renderCola();
-}
-
-function agregarCliente() {
-  const nombre = $('nc-nombre').value.trim();
-  const cuit = $('nc-cuit').value.trim();
-  if (!nombre || !cuit) { alert('Nombre y CUIT son obligatorios'); return; }
-  const initials = nombre.split(/[\s,]+/).filter(Boolean).map(w=>w[0].toUpperCase()).slice(0,2).join('');
-  const id = 'c' + Date.now();
-  state.clients.push({
-    id, nombre, cuit,
-    condicion: $('nc-condicion').value,
-    categoria: $('nc-categoria').value,
-    email: $('nc-email').value,
-    av: initials, avColor: AV_COLORS[state.clients.length % AV_COLORS.length],
-    // NUEVO: concepto del modal
-    conceptoDefault: $('nc-concepto').value.trim() || 'Servicios profesionales',
-    conceptoMesAuto: true,
-    arca: { conectado: false, pv: '0001', tipo: 'C', concepto: '2' },
-    tarifa: { base: +$('nc-base').value||8000, incl: +$('nc-incl').value||10, extra: +$('nc-extra').value||500, desc: 20 },
-    facturas: []
-  });
-  closeModal('modal-nuevo-cliente');
-  renderClientList();
-  selectClient(id);
-}
-
-function eliminarCliente() {
-  const c = getClient();
-  if (!confirm(`??Eliminar a ${c.nombre}? Esta acci??n no se puede deshacer.`)) return;
-  state.clients = state.clients.filter(x => x.id !== state.currentClientId);
-  state.currentClientId = null;
-  $('client-panel').style.display = 'none';
-  $('placeholder').style.display = 'block';
-  renderClientList();
-}
-
-// ?????? TABS ?????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
-function showTab(id) {
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('#main-tabs .tab').forEach(t => t.classList.remove('active'));
-  $('tp-' + id).classList.add('active');
-  const map = {resumen:0,cargar:1,facturas:2,reporte:3,arca:4,drive:5,config:6};
-  document.querySelectorAll('#main-tabs .tab')[map[id]]?.classList.add('active');
-  const c = getClient(); if (!c) return;
-  if (id === 'resumen') renderResumen(c);
-  if (id === 'cargar') renderCargarAviso(c);
-  if (id === 'facturas') renderFacturasTab(c);
-  if (id === 'reporte') buildReporte();
-  if (id === 'arca') renderArca(c);
-  if (id === 'drive') renderDrive(c);
-  if (id === 'config') renderConfig(c);
-}
-
-// NUEVO: mostrar aviso del concepto predeterminado al entrar en Cargar
-function renderCargarAviso(c) {
-  const aviso = $('concepto-aviso');
-  if (c.conceptoDefault) {
-    const preview = getConceptoCliente(c);
-    aviso.style.display = 'flex';
-    aviso.innerHTML = `Concepto predeterminado activo: <strong style="margin-left:4px">${preview}</strong> &nbsp;??? pod??s cambiarlo en <a href="#" onclick="showTab('config');return false" style="color:var(--acc)">Configuraci??n</a>`;
-  } else {
-    aviso.style.display = 'none';
-  }
-}
-
-// ?????? RESUMEN ????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
-function renderResumen(c) {
-  const pend = c.facturas.filter(f=>f.estado==='pendiente');
-  const venc = c.facturas.filter(f=>f.estado==='vencida');
-  const emit = c.facturas.filter(f=>f.estado==='emitida');
-  const totalAnio = emit.reduce((a,f)=>a+f.importe,0);
-  $('resumen-metrics').innerHTML = `
-    <div class="metric"><div class="metric-n">${emit.length}</div><div class="metric-l">Emitidas</div></div>
-    <div class="metric"><div class="metric-n" style="color:var(--dan)">${pend.length+venc.length}</div><div class="metric-l">Pendientes/vencidas</div></div>
-    <div class="metric"><div class="metric-n">${fmt(totalAnio)}</div><div class="metric-l">Total facturado</div></div>
-    <div class="metric"><div class="metric-n">${c.condicion==='Monotributista'?'Cat. '+(c.categoria||'???'):c.condicion}</div><div class="metric-l">Condici??n</div></div>`;
-  let alertHtml = '';
-  if (venc.length) alertHtml += `<div class="alert alert-dan">??? ${venc.length} comprobante${venc.length>1?'s':''} con el plazo vencido.</div>`;
-  if (pend.length) {
-    const urgente = pend.filter(f=>diasRestantes(f.fecha,f.tipo)<=2);
-    if (urgente.length) alertHtml += `<div class="alert alert-war">??? ${urgente.length} comprobante${urgente.length>1?'s':''} vence${urgente.length>1?'n':''} en menos de 2 d??as.</div>`;
-    else alertHtml += `<div class="alert alert-info">???? ${pend.length} comprobante${pend.length>1?'s':''} pendiente${pend.length>1?'s':''} de emitir.</div>`;
-  }
-  if (!pend.length && !venc.length) alertHtml = `<div class="alert alert-ok">??? Todo al d??a. Sin comprobantes pendientes.</div>`;
-  $('resumen-alert').innerHTML = alertHtml;
-  const recientes = [...c.facturas].sort((a,b)=>b.fecha.localeCompare(a.fecha)).slice(0,8);
-  $('resumen-tabla').innerHTML = recientes.map(f=>`
-    <tr>
-      <td>${fmtFecha(f.fecha)}</td>
-      <td style="font-size:11px;color:var(--muted)">${f.nro||'???'}</td>
-      <td>${f.concepto}</td>
-      <td>${fmt(f.importe)}</td>
-      <td>${f.estado==='emitida'?'???':plazoHtml(f.fecha,f.tipo,f.estado)}</td>
-      <td>${f.estado==='emitida'?'<span class="badge b-ok">Emitida</span>':f.estado==='vencida'?'<span class="badge b-dan">Vencida</span>':'<span class="badge b-war">Pendiente</span>'}</td>
-      <td>${f.estado!=='emitida'?`<button class="btn btn-primary btn-sm" onclick="emitirFactura('${f.id}')">Emitir</button>`:`<button class="btn btn-sm" onclick="abrirEditarFactura('${f.id}')">Editar</button>`}</td>
-    </tr>`).join('');
-}
-
-// ?????? FACTURAS TAB ?????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
-function renderFacturasTab() {
-  const c = getClient(); if (!c) return;
-  const mes = $('filter-mes').value;
-  const est = $('filter-estado').value;
-  const mesesSet = new Set(c.facturas.map(f=>f.fecha.slice(0,7)));
-  const sel = $('filter-mes');
-  const prev = sel.value;
-  sel.innerHTML = '<option value="">Todos los meses</option>' +
-    [...mesesSet].sort().reverse().map(m=>{
-      const [y,mm] = m.split('-');
-      const names = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-      return `<option value="${m}" ${m===prev?'selected':''}>${names[+mm]} ${y}</option>`;
-    }).join('');
-  let facts = [...c.facturas].sort((a,b)=>b.fecha.localeCompare(a.fecha));
-  if (mes) facts = facts.filter(f=>f.fecha.startsWith(mes));
-  if (est) facts = facts.filter(f=>f.estado===est);
-  $('facturas-tabla').innerHTML = facts.length ? facts.map(f=>`
-    <tr>
-      <td>${fmtFecha(f.fecha)}</td>
-      <td style="font-size:11px">${f.nro||'???'}</td>
-      <td>${f.concepto}</td>
-      <td>${f.comprobante}</td>
-      <td>${fmt(f.importe)}</td>
-      <td>${f.estado==='emitida'?'???':plazoHtml(f.fecha,f.tipo,f.estado)}</td>
-      <td>${f.estado==='emitida'?'<span class="badge b-ok">Emitida</span>':f.estado==='vencida'?'<span class="badge b-dan">Vencida</span>':'<span class="badge b-war">Pendiente</span>'}</td>
-      <td><button class="btn btn-sm" onclick="abrirEditarFactura('${f.id}')">${f.estado!=='emitida'?'Emitir / Editar':'Ver'}</button></td>
-    </tr>`).join('')
-  : '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px">Sin resultados</td></tr>';
-}
-
-// ?????? CARGAR / IMPORTAR ??????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
-
-// NUEVO: extracci??n mejorada ??? lee campo "Cr??dito" espec??ficamente
-function extraerDatosImagen(fileName) {
-  const c = getClient();
-  const conceptoPredeterminado = getConceptoCliente(c);
-  // Simula extracci??n. En producci??n ac?? va la llamada a Claude Vision API
-  // con instrucci??n: "Busc?? el campo etiquetado CREDITO o CR??DITO para el importe.
-  // Ignor?? n??meros de CBU, cuenta o referencia (m??s de 15 d??gitos).
-  // Si encontr??s TRANSFERENCIA, us?? el concepto predeterminado del cliente."
-  return {
-    id: 'new' + Date.now() + Math.random(),
-    fecha: offsetDate(-3),
-    // NUEVO: usa el concepto predeterminado del cliente
-    concepto: conceptoPredeterminado || 'Servicios profesionales',
-    tipo: 'servicio',
-    // NUEVO: importe le??do del campo "Cr??dito" espec??ficamente
-    importe: 50000,
-    comprobante: c.arca.tipo || 'C',
-    nro: '', cae: '', estado: 'pendiente'
-  };
-}
-
-function handleImages(files) {
-  if (!files || files.length === 0) return;
-  var client = getClient();
-  if (!client) return;
-  var concepto = getConceptoCliente(client);
-  var preview  = document.getElementById('preview-box');
-  var total    = files.length;
-
-  if (preview) preview.innerHTML =
-    '<div style="padding:14px;color:#555;font-size:13px">Procesando <strong>' + total + '</strong> imagen' +
-    (total > 1 ? 'es' : '') + '...<br><div style="margin-top:8px;height:5px;background:#e5e5e5;border-radius:3px">' +
-    '<div id="pbar" style="height:5px;background:#185FA5;border-radius:3px;width:0;transition:width .4s"></div></div></div>';
-
-  var done = 0;
-
-  Array.from(files).forEach(function(file, idx) {
-    var reader = new FileReader();
-    reader.onload = function(e) {
-      var b64  = e.target.result.split(',')[1];
-      var tipo = file.type || 'image/jpeg';
-
-      fetch('/api/leer-imagen', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ imagen: b64, tipo: tipo, concepto_default: concepto })
-      })
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        done++;
-        var pbar = document.getElementById('pbar');
-        if (pbar) pbar.style.width = Math.round(done / total * 100) + '%';
-
-        if (data.error) {
-          console.warn('Imagen ' + idx + ': ' + data.error);
-        } else {
-          var imp = data.importe || 0;
-          var fch = data.fecha   || '';
-
-          // Verificar duplicado en cola y en historial guardado
-          var dup = false;
-          colaFacturas.forEach(function(f) {
-            if (Math.abs(f.importe - imp) < 1 && f.fecha === fch) dup = true;
-          });
-          var historial = getHistorial(client.id);
-          historial.forEach(function(f) {
-            if (Math.abs(f.importe - imp) < 1 && f.fecha === fch) dup = true;
-          });
-
-          colaFacturas.push({
-            id:              'img_' + idx + '_' + Date.now(),
-            fecha:           fch,
-            concepto:        concepto,
-            tipo:            'servicio',
-            importe:         imp,
-            receptor_nombre: data.receptor_nombre || '',
-            receptor_cuit:   (data.receptor_cuit  || '').replace(/-/g, ''),
-            estado:          dup ? 'posible-duplicado' : 'pendiente',
-            duplicado:       dup
-          });
-          renderCola();
-        }
-
-        if (done === total && preview) {
-          var dups = colaFacturas.filter(function(f) { return f.duplicado; }).length;
-          var msg  = done + ' imagen' + (done > 1 ? 'es' : '') + ' procesada' + (done > 1 ? 's' : '');
-          if (dups > 0) msg += ' ??? <strong style="color:#854F0B">??? ' + dups + ' posible' + (dups > 1 ? 's' : '') + ' duplicado' + (dups > 1 ? 's' : '') + '</strong>';
-          preview.innerHTML = '<div style="background:#EAF3DE;border:1px solid #3B6D11;border-radius:8px;padding:12px;font-size:13px">' + msg + '</div>';
-        }
-      })
-      .catch(function(err) {
-        done++;
-        console.error('Error imagen ' + idx + ': ' + err.message);
-      });
-    };
-    reader.readAsDataURL(file);
-  });
-}
-
-function handleExcel(file) {
-  if (!file) return;
-  var client   = getClient();
-  if (!client) return;
-  var concepto = getConceptoCliente(client);
-  var preview  = document.getElementById('preview-box');
-  if (preview) preview.innerHTML = '<div style="padding:14px;color:#555;font-size:13px">Procesando Excel...</div>';
-
-  var formData = new FormData();
-  formData.append('file', file);
-
-  fetch('/api/leer-excel', { method: 'POST', body: formData })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (data.error) {
-        if (preview) preview.innerHTML = '<div style="color:red;padding:10px">Error: ' + data.error + '</div>';
-        return;
-      }
-      var filas = data.filas || [];
-      var cols  = data.columnas || [];
-      var agregadas = 0;
-
-      filas.forEach(function(fila, idx) {
-        var impKey  = cols.find(function(k) { return /importe|monto|credito|cr.dito|total|amount/i.test(k); });
-        var fecKey  = cols.find(function(k) { return /fecha|date/i.test(k); });
-        var nomKey  = cols.find(function(k) { return /nombre|name|cliente|razon/i.test(k); });
-        var cuitKey = cols.find(function(k) { return /cuit|cuil/i.test(k); });
-
-        var imp = impKey ? parseFloat(String(fila[impKey]).replace(/[$. ]/g,'').replace(',','.')) : 0;
-        var fch = fecKey ? fila[fecKey] : '';
-
-        if (imp > 0) {
-          var dup = false;
-          colaFacturas.forEach(function(f) {
-            if (Math.abs(f.importe - imp) < 1 && f.fecha === fch) dup = true;
-          });
-          var historial = getHistorial(client.id);
-          historial.forEach(function(f) {
-            if (Math.abs(f.importe - imp) < 1 && f.fecha === fch) dup = true;
-          });
-
-          colaFacturas.push({
-            id:              'xls_' + idx + '_' + Date.now(),
-            fecha:           fch,
-            concepto:        concepto,
-            tipo:            'servicio',
-            importe:         imp,
-            receptor_nombre: nomKey  ? fila[nomKey]  : '',
-            receptor_cuit:   cuitKey ? String(fila[cuitKey]).replace(/[-\s]/g,'') : '',
-            estado:          dup ? 'posible-duplicado' : 'pendiente',
-            duplicado:       dup
-          });
-          agregadas++;
-        }
-      });
-
-      renderCola();
-      if (preview) preview.innerHTML =
-        '<div style="background:#EAF3DE;border:1px solid #3B6D11;border-radius:8px;padding:12px;font-size:13px">' +
-        agregadas + ' filas importadas de ' + filas.length + ' registros</div>';
-    })
-    .catch(function(err) {
-      if (preview) preview.innerHTML = '<div style="color:red;padding:10px">Error: ' + err.message + '</div>';
-    });
-}
-
-function offsetDate(days) {
-  const d = new Date(); d.setDate(d.getDate()+days);
-  return d.toISOString().split('T')[0];
-}
-
-let cola = [];
-function addToCola(rows) { cola = [...cola, ...rows]; renderCola(); }
-
-function renderCola() {
-  var contenedor = document.getElementById('cola-carga');
-  var tabla = document.getElementById('cola-tabla');
-  if (!contenedor) return;
-  if (!colaFacturas || colaFacturas.length === 0) {
-    contenedor.style.display = 'none';
-    guardarCola();
-    return;
-  }
-  contenedor.style.display = 'block';
-  if (!tabla) return;
-  var rows = '';
-  for (var fi = 0; fi < colaFacturas.length; fi++) {
-    var f = colaFacturas[fi];
-    var hoy = new Date();
-    var partes = (f.fecha || '').split('/');
-    var fDate = partes.length === 3 ? new Date(parseInt(partes[2]), parseInt(partes[1])-1, parseInt(partes[0])) : hoy;
-    var dias = Math.ceil((hoy - fDate) / 86400000);
-    var plazo = 10 - dias;
-    var plazoTxt = plazo < 0 ? 'Vencido' : plazo + 'd';
-    var plazoColor = plazo < 0 ? '#A32D2D' : plazo <= 2 ? '#854F0B' : '#3B6D11';
-    var fid = f.id;
-    var isDup = f.duplicado;
-    var isEmitida = f.estado === 'emitida';
-    var rowBg = isDup ? 'background:#FFFBEA;border-left:3px solid #F59E0B' : isEmitida ? 'background:#F0FAF0;border-left:3px solid #3B6D11' : '';
-
-    rows += '<tr style="' + rowBg + '">';
-    rows += '<td style="font-size:12px">' + (f.fecha || '') + '</td>';
-
-    // Columna concepto con aviso de duplicado
-    var conceptoCell = '<input id="conc-' + fid + '" value="' + (f.concepto || '').replace(/"/g, '&quot;') + '" ' +
-      (isEmitida ? 'disabled ' : '') +
-      'style="width:100%;font-size:11px;padding:2px 4px;border:0.5px solid #ccc;border-radius:4px" />';
-    if (isDup) conceptoCell += '<div style="font-size:10px;color:#854F0B;margin-top:2px">??? Mismo importe y fecha ya facturado</div>';
-    rows += '<td>' + conceptoCell + '</td>';
-
-    rows += '<td><select id="tipo-' + fid + '" ' + (isEmitida ? 'disabled ' : '') +
-      'style="font-size:11px;padding:2px;border:0.5px solid #ccc;border-radius:4px">' +
-      '<option value="servicio">Servicio</option><option value="bien">Bien</option></select></td>';
-    rows += '<td><input type="number" id="imp-' + fid + '" value="' + (f.importe || 0) + '" ' +
-      (isEmitida ? 'disabled ' : '') +
-      'style="width:85px;font-size:11px;padding:2px 4px;border:0.5px solid #ccc;border-radius:4px" /></td>';
-    rows += '<td style="color:' + plazoColor + ';font-weight:500;font-size:11px">' + plazoTxt + '</td>';
-
-    var estadoHtml;
-    if (isEmitida) {
-      estadoHtml = '<span style="font-size:10px;padding:2px 6px;border-radius:4px;background:#EAF3DE;color:#3B6D11">??? Emitida</span>';
-    } else if (isDup) {
-      estadoHtml = '<span style="font-size:10px;padding:2px 6px;border-radius:4px;background:#FFF3CD;color:#856404">??? Duplicado?</span>';
-    } else {
-      estadoHtml = '<span style="font-size:10px;padding:2px 6px;border-radius:4px;background:#FAEEDA;color:#854F0B">Pendiente</span>';
-    }
-    rows += '<td>' + estadoHtml + '</td>';
-
-    var botonesHtml;
-    if (isEmitida) {
-      botonesHtml = '<span style="font-size:10px;color:#3B6D11">CAE OK</span>';
-    } else if (isDup) {
-      botonesHtml =
-        '<button id="btn-' + fid + '" onclick="emitirFacturaReal(\'' + fid + '\')" ' +
-        'style="font-size:11px;padding:3px 8px;background:#856404;color:#fff;border:none;border-radius:5px;cursor:pointer;margin-right:4px">Emitir igual</button>' +
-        '<button onclick="eliminarDeCola(\'' + fid + '\')" ' +
-        'style="font-size:11px;padding:3px 8px;background:#fff;color:#A32D2D;border:1px solid #A32D2D;border-radius:5px;cursor:pointer">???</button>';
-    } else {
-      botonesHtml =
-        '<button id="btn-' + fid + '" onclick="emitirFacturaReal(\'' + fid + '\')" ' +
-        'style="font-size:11px;padding:3px 8px;background:#185FA5;color:#fff;border:none;border-radius:5px;cursor:pointer;margin-right:4px">Emitir</button>' +
-        '<button onclick="eliminarDeCola(\'' + fid + '\')" ' +
-        'style="font-size:11px;padding:3px 8px;background:#fff;color:#999;border:1px solid #ddd;border-radius:5px;cursor:pointer">???</button>';
-    }
-    rows += '<td>' + botonesHtml + '</td>';
-    rows += '</tr>';
-  }
-  tabla.innerHTML = rows;
-  guardarCola();
-}
-
-function clearCola() { cola=[]; renderCola(); $('preview-box').innerHTML='<div class="empty" style="padding:20px"><div>Carg?? un archivo para ver los datos extra??dos</div></div>'; }
-
-function emitirCola(i) {
-  const f = cola[i];
-  const c = getClient();
-  f.estado = 'emitida';
-  f.nro = `${c.arca.tipo}-${c.arca.pv}-${String(c.facturas.filter(x=>x.estado==='emitida').length+1).padStart(4,'0')}`;
-  f.cae = '2411' + Math.floor(Math.random()*1e12).toString().padStart(12,'0');
-  c.facturas.push({...f});
-  cola.splice(i,1);
-  renderCola();
-  selectClient(state.currentClientId);
-  alert(`??? Factura emitida en ARCA\nNro: ${f.nro}\nCAE: ${f.cae}`);
-}
-
-async function emitirTodos() {
-  var client = getClient();
-  if (!client) return;
-
-  var pendientes = colaFacturas.filter(function(f) {
-    return f.estado !== 'emitida' && !f.duplicado;
-  });
-
-  if (pendientes.length === 0) {
-    alert('No hay facturas pendientes para emitir (los duplicados se saltean).');
-    return;
-  }
-
-  if (!confirm('Se van a emitir ' + pendientes.length + ' factura' + (pendientes.length > 1 ? 's' : '') +
-    ' en ARCA. Los posibles duplicados NO se emitiran. Confirmas?')) return;
-
-  var btn = document.querySelector('[onclick="emitirTodos()"]');
-  if (btn) { btn.disabled = true; btn.textContent = 'Emitiendo 0/' + pendientes.length + '...'; }
-
-  var ok = 0; var errores = 0;
-
-  for (var i = 0; i < pendientes.length; i++) {
-    var f = pendientes[i];
-    var btnF = document.getElementById('btn-' + f.id);
-    if (btnF) { btnF.textContent = '...'; btnF.disabled = true; }
-    if (btn) btn.textContent = 'Emitiendo ' + (i+1) + '/' + pendientes.length + '...';
-
-    try {
-      var concEl = document.getElementById('conc-' + f.id);
-      var impEl  = document.getElementById('imp-'  + f.id);
-      var tipoEl = document.getElementById('tipo-' + f.id);
-      if (concEl) f.concepto = concEl.value;
-      if (impEl)  f.importe  = parseFloat(impEl.value) || 0;
-      if (tipoEl) f.tipo     = tipoEl.value;
-
-      var resp = await fetch('/api/emitir', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          cuit_emisor:     client.cuit.replace(/-/g,''),
-          punto_venta:     (client.arca && client.arca.pv) ? client.arca.pv : '2',
-          receptor_cuit:   f.receptor_cuit   || '0',
-          receptor_nombre: f.receptor_nombre || '',
-          importe:  f.importe,
-          concepto: f.concepto,
-          fecha:    f.fecha,
-          tipo_cbte: 11
-        })
-      });
-      var data = await resp.json();
-
-      if (data.ok) {
-        f.estado = 'emitida';
-        f.cae    = data.cae;
-        f.nro    = data.nro_comprobante;
-        if (typeof guardarEnHistorial === 'function')
-          guardarEnHistorial(state.currentClientId, Object.assign({}, f));
-        ok++;
-        if (btnF) { btnF.textContent = 'CAE OK'; btnF.style.background = '#3B6D11'; }
-      } else {
-        errores++;
-        var msg = (data.errores || []).join(', ') || data.error || 'Error desconocido';
-        if (btnF) { btnF.disabled = false; btnF.textContent = 'Error'; btnF.style.background = '#A32D2D'; btnF.title = msg; }
-        console.error('Error factura ' + f.id + ': ' + msg);
-      }
-    } catch(err) {
-      errores++;
-      if (btnF) { btnF.disabled = false; btnF.textContent = 'Error'; }
-      console.error('Error: ' + err.message);
-    }
-
-    if (typeof guardarCola === 'function') guardarCola();
-    renderCola();
-
-    if (i < pendientes.length - 1) {
-      await new Promise(function(r) { setTimeout(r, 800); });
-    }
-  }
-
-  if (btn) { btn.disabled = false; btn.textContent = 'Emitir todos sin duplicados'; }
-
-  var msg = ok + ' factura' + (ok !== 1 ? 's' : '') + ' emitida' + (ok !== 1 ? 's' : '') + ' correctamente.';
-  if (errores > 0) msg += '\n' + errores + ' con error ??? ver botones en rojo.';
-  alert(msg);
-}
-
-function showPreviewExtracted(rows) {
-  $('preview-box').innerHTML = `
-    <div class="alert alert-ok" style="margin-bottom:10px">??? ${rows.length} comprobante${rows.length>1?'s':''} detectado${rows.length>1?'s':''}</div>
-    <div style="font-size:10px;color:var(--acc);background:var(--acc-l);padding:5px 8px;border-radius:4px;margin-bottom:8px">Importe le??do del campo "Cr??dito" ?? Concepto: predeterminado del cliente</div>
-    ${rows.map(f=>`
-    <div style="background:var(--surface2);border-radius:var(--radius);padding:8px 10px;margin-bottom:6px;font-size:12px">
-      <div style="display:flex;justify-content:space-between"><span>${f.concepto}</span><strong>${fmt(f.importe)}</strong></div>
-      <div style="color:var(--muted);font-size:11px;margin-top:2px">${fmtFecha(f.fecha)} ?? ${f.tipo} ?? ${diasRestantes(f.fecha,f.tipo)} d??as restantes</div>
-    </div>`).join('')}`;
-}
-
-// ?????? EMITIR FACTURA INDIVIDUAL ??????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
-function emitirFactura(fid) {
-  const c = getClient();
-  const f = c.facturas.find(x=>x.id===fid);
-  if (!f) return;
-  if (diasRestantes(f.fecha, f.tipo) < 0) { alert('El plazo para emitir este comprobante ya venci??.'); return; }
-  f.estado = 'emitida';
-  f.nro = `${c.arca.tipo}-${c.arca.pv}-${String(c.facturas.filter(x=>x.estado==='emitida').length).padStart(4,'0')}`;
-  f.cae = '2411' + Math.floor(Math.random()*1e12).toString().padStart(12,'0');
-  selectClient(state.currentClientId);
-  alert(`??? Factura emitida\nNro: ${f.nro}\nCAE: ${f.cae}`);
-}
-
-function abrirEditarFactura(fid) {
-  const c = getClient();
-  const f = c.facturas.find(x=>x.id===fid);
-  if (!f) return;
-  state.editingFacturaId = fid;
-  $('mf-fecha').value = f.fecha;
-  $('mf-tipo').value = f.tipo;
-  $('mf-concepto').value = f.concepto;
-  $('mf-importe').value = f.importe;
-  $('mf-comprobante').value = f.comprobante;
-  const dias = diasRestantes(f.fecha, f.tipo);
-  $('mf-plazo-info').textContent = f.estado==='emitida' ? 'Factura ya emitida en ARCA.' : dias >= 0 ? `Plazo: ${dias} d??a${dias!==1?'s':''} restante${dias!==1?'s':''}` : `Plazo vencido hace ${Math.abs(dias)} d??a${Math.abs(dias)!==1?'s':''}`;
-  openModal('modal-factura');
-}
-
-function guardarFacturaModal() {
-  const c = getClient();
-  const f = c.facturas.find(x=>x.id===state.editingFacturaId);
-  if (!f) return;
-  f.fecha = $('mf-fecha').value;
-  f.tipo = $('mf-tipo').value;
-  f.concepto = $('mf-concepto').value;
-  f.importe = +$('mf-importe').value;
-  f.comprobante = $('mf-comprobante').value;
-  closeModal('modal-factura');
-  selectClient(state.currentClientId);
-}
-
-// ?????? REPORTE ????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
-function buildReporte() {
-  const c = getClient(); if (!c) return;
-  const mes = $('rep-periodo').value;
-  const r = calcHonorario(c, mes);
-  $('reporte-body').innerHTML = `
-    <div class="card">
-      <div class="report-header">
-        <div>
-          <div style="font-size:15px;font-weight:500">${c.nombre}</div>
-          <div style="font-size:11px;color:var(--muted)">CUIT ${c.cuit} ?? ${c.condicion} ?? ${mes}</div>
-        </div>
-        <span class="badge ${r.qty>0?'b-ok':'b-gray'}">${r.qty} facturas emitidas</span>
-      </div>
-      <div class="metrics" style="margin-bottom:0">
-        <div class="metric"><div class="metric-n">${r.qty}</div><div class="metric-l">Facturas emitidas</div></div>
-        <div class="metric"><div class="metric-n">${fmt(r.totalFact)}</div><div class="metric-l">Total facturado</div></div>
-        <div class="metric"><div class="metric-n" style="color:var(--acc)">${fmt(r.total)}</div><div class="metric-l">Tu honorario</div></div>
-        <div class="metric"><div class="metric-n">${r.exc}</div><div class="metric-l">Facturas excedente</div></div>
-      </div>
-    </div>
-    <div class="total-box">
-      <div class="total-label">Honorario a cobrar ??? ${mes}</div>
-      <div class="total-amount">${fmt(r.total)}</div>
-      <div class="breakdown">
-        <div class="bk"><div class="bk-n">${fmt(r.base)}</div><div class="bk-l">Base fija</div></div>
-        <div class="bk"><div class="bk-n">${fmt(r.excCost)}</div><div class="bk-l">${r.exc} fact. excedente</div></div>
-        <div class="bk"><div class="bk-n">${r.qty}</div><div class="bk-l">Total emitidas</div></div>
-      </div>
-    </div>
-    ${r.facts.length ? `
-    <div class="card">
-      <div class="card-title">Detalle de facturas emitidas</div>
-      <div class="table-wrap" style="margin-bottom:0">
-        <table>
-          <thead><tr><th>Fecha</th><th>Nro.</th><th>Concepto</th><th>Importe</th></tr></thead>
-          <tbody>${r.facts.map(f=>`<tr><td>${fmtFecha(f.fecha)}</td><td style="font-size:11px">${f.nro||'???'}</td><td>${f.concepto}</td><td>${fmt(f.importe)}</td></tr>`).join('')}</tbody>
-        </table>
-      </div>
-    </div>` : '<div class="empty"><div>Sin facturas emitidas en este per??odo</div></div>'}`;
-}
-
-// ?????? ARCA ?????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
-function renderArca(c) {
-  const box = $('arca-status-box');
-  if (c.arca.conectado) {
-    box.innerHTML = `<div class="arca-box"><div class="arca-dot"></div><div class="arca-info">ARCA conectada ??? CUIT ${c.cuit}<small>Token vigente ?? punto de venta ${c.arca.pv}</small></div><button class="btn btn-sm" onclick="reconectarArca()">Reconectar</button></div>`;
-  } else {
-    box.innerHTML = `<div class="alert alert-war">??? ARCA no configurada. Sub?? el certificado (.crt) y la clave privada (.key) para habilitar la emisi??n.</div>`;
-  }
-  $('arca-cuit').value = c.cuit;
-  $('arca-pv').value = c.arca.pv || '0002';
-  $('arca-tipo').value = c.arca.tipo || 'C';
-  $('arca-concepto').value = c.arca.concepto || '2';
-  $('cert-status').textContent = c.arca.certNombre ? `??? Certificado cargado: ${c.arca.certNombre}` : '';
-  $('key-status').textContent = c.arca.keyNombre ? `??? Clave privada cargada: ${c.arca.keyNombre}` : '';
-}
-
-function loadCert(input) {
-  const c = getClient();
-  if (input.files[0]) {
-    c.arca.certNombre = input.files[0].name;
-    $('cert-status').textContent = `??? Certificado cargado: ${input.files[0].name}`;
-    $('cert-status').style.color = 'var(--suc)';
-  }
-}
-
-function loadKey(input) {
-  const c = getClient();
-  if (input.files[0]) {
-    c.arca.keyNombre = input.files[0].name;
-    $('key-status').textContent = `??? Clave privada cargada: ${input.files[0].name}`;
-    $('key-status').style.color = 'var(--suc)';
-  }
-}
-
-function guardarArca() {
-  const c = getClient();
-  c.cuit = $('arca-cuit').value;
-  c.arca.pv = $('arca-pv').value;
-  c.arca.tipo = $('arca-tipo').value;
-  c.arca.concepto = $('arca-concepto').value;
-  if (c.arca.certNombre && c.arca.keyNombre) {
-    c.arca.conectado = true;
-    renderArca(c);
-    alert('??? Conexi??n verificada con ARCA. Token generado correctamente.');
-  } else {
-    alert('Falta subir el certificado (.crt) y/o la clave privada (.key).');
-  }
-}
-
-function reconectarArca() {
-  const c = getClient();
-  c.arca.conectado = false;
-  renderArca(c);
-}
-
-// ?????? DRIVE ??????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
-function renderDrive(c) {
-  const emit = c.facturas.filter(f=>f.estado==='emitida');
-  $('drive-tree').innerHTML = `
-    <div>???? <strong>FacturAR Pro</strong> (tu cuenta)</div>
-    <div style="margin-left:20px;border-left:1.5px solid var(--border);padding-left:12px">
-      <div>???? <strong>${c.nombre}</strong></div>
-      <div style="margin-left:18px;color:var(--muted)">
-        ${emit.slice(0,5).map(f=>`<div>???? ${f.nro||'FAC-pendiente'}.pdf</div>`).join('')}
-        ${emit.length > 5 ? `<div style="color:var(--hint)">... y ${emit.length-5} m??s</div>` : ''}
-        ${emit.length === 0 ? '<div style="color:var(--hint)">Sin facturas emitidas a??n</div>' : ''}
-      </div>
-    </div>`;
-}
-
-// ?????? CONFIGURACION ??????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
-function renderConfig(c) {
-  $('cfg-nombre').value = c.nombre;
-  $('cfg-cuit').value = c.cuit;
-  $('cfg-condicion').value = c.condicion;
-  $('cfg-categoria').value = c.categoria || '';
-  $('cfg-email').value = c.email || '';
-  // NUEVO: cargar concepto predeterminado
-  $('cfg-concepto-default').value = c.conceptoDefault || '';
-  $('cfg-concepto-mes').checked = c.conceptoMesAuto !== false;
-  updateConceptoPreview();
-  $('cfg-base').value = c.tarifa.base;
-  $('cfg-incl').value = c.tarifa.incl;
-  $('cfg-extra').value = c.tarifa.extra;
-  $('cfg-desc').value = c.tarifa.desc;
-  updateTarifaPreview();
-}
-
-// NUEVO: preview del concepto en configuraci??n
-function updateConceptoPreview() {
-  const base = $('cfg-concepto-default')?.value || '';
-  const mesAuto = $('cfg-concepto-mes')?.checked;
-  const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-  const d = new Date();
-  const preview = base ? (mesAuto ? `${base} ??? ${meses[d.getMonth()]} ${d.getFullYear()}` : base) : '???';
-  const el = $('concepto-preview');
-  if (el) el.textContent = `Vista previa: ${preview}`;
-}
-
-// NUEVO: chips de sugerencias
-function setConceptoSugerido(val) {
-  $('cfg-concepto-default').value = val;
-  updateConceptoPreview();
-}
-
-function updateTarifaPreview() {
-  const base = +$('cfg-base').value || 0;
-  const incl = +$('cfg-incl').value || 0;
-  const extra = +$('cfg-extra').value || 0;
-  const desc = +$('cfg-desc').value || 0;
-  const el = $('tarifa-preview');
-  if (el) el.textContent = `Base ${fmt(base)} ?? incluye ${incl} facturas ?? excedente ${fmt(extra)}/fact. ?? descuento ${desc}% a partir de la factura ${incl+11}`;
-}
-
-function guardarConfig() {
-  const c = getClient();
-  c.nombre = $('cfg-nombre').value;
-  c.cuit = $('cfg-cuit').value;
-  c.condicion = $('cfg-condicion').value;
-  c.categoria = $('cfg-categoria').value;
-  c.email = $('cfg-email').value;
-  // NUEVO: guardar concepto predeterminado
-  c.conceptoDefault = $('cfg-concepto-default').value;
-  c.conceptoMesAuto = $('cfg-concepto-mes').checked;
-  c.tarifa.base = +$('cfg-base').value;
-  c.tarifa.incl = +$('cfg-incl').value;
-  c.tarifa.extra = +$('cfg-extra').value;
-  c.tarifa.desc = +$('cfg-desc').value;
-  // Actualizar initials
-  c.av = c.nombre.split(/[\s,]+/).filter(Boolean).map(w=>w[0].toUpperCase()).slice(0,2).join('');
-  renderClientList();
-  selectClient(c.id);
-  alert('??? Cambios guardados');
-}
-
-// ?????? EXPORTAR ?????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
-function exportarExcel() {
-  const c = getClient(); if (!c) return;
-  const rows = [['Fecha','Nro. Comprobante','Concepto','Tipo','Importe','Estado','CAE']];
-  c.facturas.forEach(f => rows.push([fmtFecha(f.fecha), f.nro||'???', f.concepto, f.tipo, f.importe, f.estado, f.cae||'???']));
-  const csv = rows.map(r=>r.join(',')).join('\n');
-  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = `${c.nombre.replace(/[\s,]/g,'_')}_facturas.csv`;
-  a.click(); URL.revokeObjectURL(url);
-}
-
-// ?????? MODALES ????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
-function openModal(id) { $(id).classList.add('open'); }
-function closeModal(id) { $(id).classList.remove('open'); }
-document.querySelectorAll('.modal-bg').forEach(m => {
-  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && $('login-screen').style.display !== 'none') doLogin();
 });
 
-function getHistorial(clientId) {
-  try {
-    var raw = localStorage.getItem('historial_' + clientId);
-    return raw ? JSON.parse(raw) : [];
-  } catch(e) { return []; }
+supa.auth.onAuthStateChange((event, session) => {
+  if (session) { currentSession = session; iniciarApp(session.user.email); }
+});
+
+function iniciarApp(email) {
+  $('login-screen').style.display = 'none';
+  if (email === ADMIN_EMAIL) iniciarAdmin(email);
+  else iniciarCliente(email);
 }
 
-function guardarEnHistorial(clientId, factura) {
-  try {
-    var h = getHistorial(clientId);
-    h.unshift(factura);
-    if (h.length > 500) h = h.slice(0, 500);
-    localStorage.setItem('historial_' + clientId, JSON.stringify(h));
-  } catch(e) {}
+// ── ADMIN ──────────────────────────────────────────────────────────────────
+async function iniciarAdmin(email) {
+  $('admin-screen').style.display = 'flex';
+  $('admin-user-name').textContent = email.split('@')[0];
+  await cargarAdminClientes();
 }
 
+async function cargarAdminClientes() {
+  const data = await api('/api/admin/clientes');
+  adminClientes = Array.isArray(data) ? data : [];
+  renderAdminClientList();
+}
 
-function emitirFacturaReal(facturaId) {
-  var client = state.clients.find(function(cl){ return cl.id === state.currentClientId; });
-  if (!client) { alert('Selecciona un cliente'); return; }
-  var factura = colaFacturas.find(function(f){ return f.id === facturaId; });
-  if (!factura) return;
+function renderAdminClientList(filtro='') {
+  const el = $('admin-client-list');
+  const lista = adminClientes.filter(c => (c.nombre||'').toLowerCase().includes(filtro.toLowerCase()));
+  el.innerHTML = lista.map((c,i) => `
+    <div class="client-item${adminClienteSel?.id===c.id?' active':''}" onclick="selAdminCliente('${c.id}')">
+      <div class="av ${AV_COLORS[i%AV_COLORS.length]}">${initials(c.nombre||'')}</div>
+      <div style="flex:1;min-width:0">
+        <div class="client-name">${c.nombre||'Sin nombre'}</div>
+        <div class="client-cuit">${c.cuit||'—'}</div>
+      </div>
+      <div class="dot ${c.activo!==false?'dot-ok':'dot-dan'}"></div>
+    </div>`).join('');
+}
 
-  var concepto_el = document.getElementById('conc-' + facturaId);
-  var importe_el  = document.getElementById('imp-'  + facturaId);
-  var tipo_el     = document.getElementById('tipo-' + facturaId);
-  if (concepto_el) factura.concepto = concepto_el.value;
-  if (importe_el)  factura.importe  = parseFloat(importe_el.value) || 0;
-  if (tipo_el)     factura.tipo     = tipo_el.value;
+function filtrarAdminClientes(v) { renderAdminClientList(v); }
 
-  var btn = document.getElementById('btn-' + facturaId);
-  if (btn) { btn.disabled = true; btn.textContent = 'Emitiendo...'; }
+async function selAdminCliente(id) {
+  adminClienteSel = adminClientes.find(c => c.id === id);
+  if (!adminClienteSel) return;
+  renderAdminClientList();
+  $('admin-placeholder').style.display = 'none';
+  $('admin-panel').style.display = 'block';
 
-  fetch('/api/emitir', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({
-      cuit_emisor:      client.cuit.replace(/-/g, ''),
-      punto_venta:      (client.arca && client.arca.pv) ? client.arca.pv : '2',
-      receptor_cuit:    factura.receptor_cuit || '0',
-      receptor_nombre:  factura.receptor_nombre || '',
-      importe:          factura.importe,
-      concepto:         factura.concepto,
-      fecha:            factura.fecha,
-      tipo_cbte:        11
-    })
-  })
-  .then(function(r){ return r.json(); })
-  .then(function(data) {
-    if (data.ok) {
-      factura.estado = 'emitida';
-      factura.cae = data.cae;
-      guardarEnHistorial(state.currentClientId, Object.assign({}, factura, {cae: data.cae, nro: data.nro_comprobante}));
-      guardarCola();
-      client.facturas = client.facturas || [];
-      client.facturas.unshift(Object.assign({}, factura));
-      if (btn) {
-        btn.textContent = 'CAE: ' + data.cae;
-        btn.style.background = '#3B6D11';
-        btn.disabled = true;
-      }
-      alert('Factura emitida!\nCAE: ' + data.cae + '\nVence: ' + data.cae_vencimiento);
-    } else {
-      if (btn) { btn.disabled = false; btn.textContent = 'Emitir'; }
-      var err = (data.errores || []).join(', ') || data.error || 'Error desconocido';
-      alert('Error ARCA: ' + err);
-    }
-  })
-  .catch(function(err) {
-    if (btn) { btn.disabled = false; btn.textContent = 'Emitir'; }
-    alert('Error de conexion: ' + err.message);
+  const c = adminClienteSel;
+  $('admin-hdr-av').textContent = initials(c.nombre||'');
+  $('admin-hdr-name').textContent = c.nombre || 'Sin nombre';
+  $('admin-hdr-sub').textContent = `CUIT ${c.cuit||'—'}`;
+  $('admin-mes-badge').textContent = `${c.facturas_mes||0} fact. este mes · ${fmt(c.total_mes||0)}`;
+
+  $('admin-metrics').innerHTML = `
+    <div class="metric"><div class="metric-n">${c.facturas_mes||0}</div><div class="metric-l">Facturas este mes</div></div>
+    <div class="metric"><div class="metric-n">${fmt(c.total_mes||0)}</div><div class="metric-l">Total mes</div></div>
+    <div class="metric"><div class="metric-n"><span class="badge ${c.activo!==false?'b-ok':'b-dan'}">${c.activo!==false?'Activo':'Suspendido'}</span></div><div class="metric-l">Estado</div></div>
+    <div class="metric"><div class="metric-n">${c.categoria_monotributo||'—'}</div><div class="metric-l">Categoría monotributo</div></div>`;
+
+  $('adm-estado-badge').innerHTML = `<span class="badge ${c.activo!==false?'b-ok':'b-dan'}">${c.activo!==false?'Activo':'Suspendido'}</span>`;
+
+  // Cargar facturas del mes
+  const facts = await api(`/api/facturas?cliente_id=${id}`);
+  const rows = Array.isArray(facts) ? facts : [];
+  const anio = new Date().getFullYear();
+  const mes  = new Date().getMonth()+1;
+  const esMes = f => f.fecha && f.fecha.startsWith(`${anio}-${String(mes).padStart(2,'0')}`);
+
+  $('adm-tabla-actividad').innerHTML = rows.filter(esMes).map(f => `
+    <tr>
+      <td>${fmtFecha(f.fecha)}</td><td>${f.concepto||'—'}</td>
+      <td>${f.receptor_nombre||'—'}</td><td>${fmt(f.importe)}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--suc)">${f.cae||'—'}</td>
+    </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px">Sin facturas este mes</td></tr>';
+
+  $('adm-tabla-facturas').innerHTML = rows.map(f => `
+    <tr>
+      <td>${fmtFecha(f.fecha)}</td><td>${f.nro_comprobante||'—'}</td><td>${f.concepto||'—'}</td>
+      <td>${f.receptor_nombre||'—'}</td><td>${fmt(f.importe)}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--suc)">${f.cae||'—'}</td>
+    </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">Sin facturas</td></tr>';
+}
+
+function showAdminTab(id) {
+  document.querySelectorAll('#admin-panel .tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('#admin-panel .tab').forEach(t => t.classList.remove('active'));
+  $('adm-'+id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+async function toggleCliente(activo) {
+  if (!adminClienteSel) return;
+  await api('/api/admin/cliente/toggle','POST',{cliente_id:adminClienteSel.id,activo});
+  adminClienteSel.activo = activo;
+  await cargarAdminClientes();
+  selAdminCliente(adminClienteSel.id);
+}
+
+async function actualizarMonotributo() {
+  const file = $('file-mono').files[0];
+  if (!file) { alert('Seleccioná un archivo'); return; }
+  const b64 = await fileToB64(file);
+  const mt  = file.type || 'image/jpeg';
+  $('mono-resultado').style.display = 'none';
+  const res = await api('/api/admin/monotributo/actualizar','POST',{imagen_b64:b64,media_type:mt});
+  $('mono-resultado').style.display = 'block';
+  $('mono-resultado').innerHTML = res.ok
+    ? `<div class="alert alert-ok">✓ Se cargaron ${res.categorias_cargadas} categorías correctamente.</div>`
+    : `<div class="alert alert-dan">Error: ${res.error}</div>`;
+}
+
+// ── CLIENTE ────────────────────────────────────────────────────────────────
+let clienteInfo = null;
+
+async function iniciarCliente(email) {
+  $('cliente-screen').style.display = 'flex';
+  clienteInfo = await api('/api/cliente/info');
+  if (!clienteInfo || clienteInfo.error) {
+    alert('Tu cuenta no está configurada. Contactá a la administradora.');
+    doLogout(); return;
+  }
+  const c = clienteInfo;
+  $('cli-av').textContent = initials(c.nombre||email);
+  $('cli-nombre').textContent = c.nombre || email;
+  $('cli-cuit-txt').textContent = `CUIT ${c.cuit||'—'} · ${c.condicion||'Monotributista'}`;
+
+  if (c.concepto_default) $('cfg-concepto').value = c.concepto_default;
+  if (c.punto_venta)      $('cfg-pv').value = c.punto_venta;
+  if (c.categoria_monotributo) $('cfg-categoria').value = c.categoria_monotributo;
+  if (c.tipo_actividad)   $('cfg-actividad').value = c.tipo_actividad;
+
+  await cargarPagos();
+  await cargarFacturasCliente();
+  await cargarMonotributo();
+}
+
+async function cargarPagos() {
+  const pagos = await api('/api/pagos/pendientes');
+  const lista = Array.isArray(pagos) ? pagos : [];
+  const badge = $('cli-badge-pagos');
+  if (lista.length > 0) { badge.textContent = lista.length; badge.style.display = 'inline-block'; }
+  else badge.style.display = 'none';
+
+  $('pagos-lista').innerHTML = lista.length ? lista.map(p => `
+    <div class="pago-card">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div class="av av-blue">${p.origen==='mercadopago'?'MP':'🍋'}</div>
+        <span class="pago-origen ${p.origen==='mercadopago'?'origen-mp':'origen-lemon'}">${p.origen==='mercadopago'?'Mercado Pago':'Lemon'}</span>
+      </div>
+      <div class="pago-info">
+        <div class="pago-remitente">${p.remitente_nombre||'Sin nombre'}</div>
+        <div class="pago-detalle">CUIT: ${p.remitente_cuit||'—'} · ${fmtFecha(p.created_at?.split('T')[0])}</div>
+        <div style="margin-top:6px;display:flex;gap:6px">
+          <button class="btn btn-sm btn-success" onclick="abrirAprobar('${p.id}','${(p.remitente_nombre||'').replace(/'/g,'`')}','${p.importe}','${p.remitente_cuit||''}')">✓ Facturar</button>
+          <button class="btn btn-sm btn-danger" onclick="descartarPago('${p.id}')">✕ Descartar</button>
+        </div>
+      </div>
+      <div class="pago-importe">${fmt(p.importe)}</div>
+    </div>`).join('')
+  : '<div class="empty"><div class="empty-icon">✅</div><div>No hay pagos pendientes de aprobación</div></div>';
+}
+
+function abrirAprobar(id, nombre, importe, cuit) {
+  pagoParaAprobar = {id, cuit};
+  $('modal-aprobar-info').innerHTML = `<strong>${nombre}</strong><br>Importe: <strong>${fmt(parseFloat(importe))}</strong><br>CUIT: ${cuit}`;
+  $('aprobar-concepto').value = clienteInfo?.concepto_default || 'Servicios profesionales';
+  openModal('modal-aprobar');
+}
+
+async function confirmarAprobacion() {
+  if (!pagoParaAprobar) return;
+  const btn = document.querySelector('#modal-aprobar .btn-primary');
+  btn.disabled = true; btn.textContent = 'Emitiendo...';
+  const res = await api('/api/pagos/aprobar','POST',{
+    pago_id: pagoParaAprobar.id,
+    concepto: $('aprobar-concepto').value
   });
+  btn.disabled = false; btn.textContent = '✓ Emitir factura';
+  closeModal('modal-aprobar');
+  if (res.ok) {
+    alert(`✓ Factura emitida\nCAE: ${res.cae}\nVence: ${res.cae_vencimiento}`);
+    await cargarPagos();
+    await cargarFacturasCliente();
+    await cargarMonotributo();
+  } else {
+    alert('Error: ' + (res.errores||[res.error]).join(', '));
+  }
 }
 
+async function descartarPago(id) {
+  if (!confirm('¿Descartás este pago? No se emitirá factura.')) return;
+  await api('/api/pagos/descartar','POST',{pago_id:id});
+  await cargarPagos();
+}
+
+async function cargarFacturasCliente() {
+  const facts = await api('/api/facturas');
+  const rows  = Array.isArray(facts) ? facts : [];
+  $('cli-tabla-facturas').innerHTML = rows.length ? rows.map(f => `
+    <tr>
+      <td>${fmtFecha(f.fecha)}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:11px">${f.nro_comprobante||'—'}</td>
+      <td>${f.concepto||'—'}</td>
+      <td>${f.receptor_nombre||'—'}</td>
+      <td>${fmt(f.importe)}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--suc)">${f.cae||'—'}</td>
+    </tr>`).join('')
+  : '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">Sin facturas emitidas</td></tr>';
+}
+
+async function cargarMonotributo() {
+  const prog = await api('/api/monotributo/progreso');
+  if (prog.error) return;
+
+  $('cli-monotributo-badge').textContent = `Cat. ${prog.categoria} — ${prog.porcentaje}%`;
+  $('cli-monotributo-badge').className = `badge ${prog.excedido?'b-dan':prog.alerta?'b-war':'b-ok'}`;
+
+  if (prog.alerta) {
+    $('cli-alerta-monotributo').innerHTML = `
+      <div class="alert alert-war">
+        ⚠ <strong>Atención:</strong> Te falta solo ${fmt(prog.falta)} para alcanzar el límite de la categoría ${prog.categoria}. 
+        Consultá con tu contadora sobre el cambio de categoría.
+      </div>`;
+  } else if (prog.excedido) {
+    $('cli-alerta-monotributo').innerHTML = `
+      <div class="alert alert-dan">
+        🚨 <strong>Límite superado:</strong> Excediste el tope de la categoría ${prog.categoria}. 
+        Contactá a tu contadora de inmediato.
+      </div>`;
+  } else {
+    $('cli-alerta-monotributo').innerHTML = '';
+  }
+
+  $('mono-titulo').textContent = `Progreso anual — Categoría ${prog.categoria}`;
+  $('mono-total').textContent   = `${fmt(prog.total_facturado)} facturados`;
+  $('mono-limite').textContent  = `Límite: ${fmt(prog.limite)}`;
+  $('mono-barra').style.width   = `${Math.min(prog.porcentaje, 100)}%`;
+  $('mono-barra').className     = `progress-fill ${prog.excedido?'progress-dan':prog.porcentaje>80?'progress-war':'progress-ok'}`;
+  $('mono-detalle').textContent = prog.excedido
+    ? `Superaste el límite en ${fmt(Math.abs(prog.falta))}`
+    : `Te quedan ${fmt(prog.falta)} para el siguiente tramo`;
+}
+
+async function subirCertificado() {
+  const cuit = $('cfg-cuit').value.replace(/-/g,'').trim();
+  const kFile = $('file-key').files[0];
+  const cFile = $('file-cert').files[0];
+  if (!cuit || !kFile || !cFile) { alert('Completá el CUIT y seleccioná ambos archivos'); return; }
+  const key_b64  = await fileToB64(kFile);
+  const cert_b64 = await fileToB64(cFile);
+  const res = await api('/api/certificado/upload','POST',{cuit,key_b64,cert_b64});
+  if (res.ok) alert('✓ Certificado guardado correctamente');
+  else alert('Error: ' + res.error);
+}
+
+async function guardarConfigCliente() {
+  const res = await api('/api/cliente/config','POST',{
+    concepto_default:       $('cfg-concepto').value,
+    punto_venta:            $('cfg-pv').value || '2',
+    categoria_monotributo:  $('cfg-categoria').value,
+    tipo_actividad:         $('cfg-actividad').value,
+    historial_monto:        parseFloat($('cfg-historial').value) || 0
+  });
+  if (res.ok) { alert('✓ Configuración guardada'); await cargarMonotributo(); }
+  else alert('Error: ' + res.error);
+}
+
+function showCliTab(id) {
+  document.querySelectorAll('#cliente-screen .tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('#cli-tabs .tab').forEach(t => t.classList.remove('active'));
+  $('cli-'+id).classList.add('active');
+  event.target.classList.add('active');
+  if (id==='facturas') cargarFacturasCliente();
+  if (id==='monotributo') cargarMonotributo();
+}
+
+// Cerrar modales al click afuera
+document.querySelectorAll('.modal-bg').forEach(m => {
+  m.addEventListener('click', e => { if (e.target===m) m.classList.remove('open'); });
+});
 </script>
 </body>
 </html>
