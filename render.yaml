@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: facturar-pro-backend
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn backend_cloud:app --bind 0.0.0.0:$PORT
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: MODO_PRUEBA
+        value: "false"
+      - key: MP_ACCESS_TOKEN
+        sync: false
